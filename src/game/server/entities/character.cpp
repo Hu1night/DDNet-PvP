@@ -1048,9 +1048,22 @@ void CCharacter::Snap(int SnappingClient, int OtherMode)
 	else if(CurrentWeapon())
 		WeaponFlag |= 1 << (CurrentWeapon()->GetType() + 14); // snap in-hand waepon only
 
-	pDDNetCharacter->m_FreezeStart = m_FreezeTick;
-	pDDNetCharacter->m_FreezeEnd = m_DeepFreeze ? -1 : m_FreezeTime == 0 ? 0 :
-                                                                               Server()->Tick() + m_FreezeTime;
+	if(SnappingClient == GetPlayer()->GetCID())
+	{
+		pDDNetCharacter->m_FreezeStart = m_FreezeTick;
+		pDDNetCharacter->m_FreezeEnd = m_DeepFreeze ? -1 : m_FreezeTime == 0 ? 0 :
+										       Server()->Tick() + m_FreezeTime;
+	}
+	else if(m_FreezeTick)
+	{
+		pDDNetCharacter->m_FreezeStart = Server()->Tick();
+		pDDNetCharacter->m_FreezeEnd = Server()->Tick();
+	}
+	else
+	{
+		pDDNetCharacter->m_FreezeStart = 0;
+		pDDNetCharacter->m_FreezeEnd = 0;
+	}
 	pDDNetCharacter->m_Jumps = m_Core.m_Jumps;
 	pDDNetCharacter->m_TeleCheckpoint = m_TeleCheckpoint;
 	pDDNetCharacter->m_StrongWeakID = SnappingClient == m_pPlayer->GetCID() ? 1 : 0;
