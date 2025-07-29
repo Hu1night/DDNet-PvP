@@ -1,0 +1,17 @@
+
+add_vote "    " "info"
+add_vote "Rule: Use Hammer" "weapon 0"
+add_vote "Rule: Use Pistol" "weapon 1"
+add_vote "Rule: Use Shotgun" "weapon 2"
+add_vote "Rule: Use Grenade" "weapon 3"
+add_vote "Rule: Use Laser" "weapon 4"
+add_vote "Rule: Use Ninja" "weapon 5"
+add_vote "Rule: Score on all spikes" "score_only 0"
+add_vote "Rule: Only score on white spikes" "score_only 1"
+add_vote "Rule: Only score on red&blue spikes" "score_only 2"
+add_vote "Rule: Only score on gold spikes" "score_only 3"
+add_vote "Rule: Only score on green spikes" "score_only 4"
+add_vote "Rule: Only score on purple spikes" "score_only 5"
+add_vote "  " "info"
+# add map votes
+exec "room_config/maps/fng.rcfg"

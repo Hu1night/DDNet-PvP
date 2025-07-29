@@ -1,0 +1,22 @@
+# catchfng room config
+
+map AliveFNG
+winner_bonus 100
+minimum_players 5
+scorelimit 200
+timelimit 10
+kill_delay 20
+
+# room votes
+add_vote " " "info"
+add_vote "=== ROOM SETTINGS ===" "info"
+add_vote "Restart" "restart 10"
+
+# rulesets
+add_vote "Rule: 10min 200points" "scorelimit 200;timelimit 10"
+add_vote "Rule: 15min 300points" "scorelimit 300;timelimit 15"
+add_vote "Rule: 20min 500points" "scorelimit 500;timelimit 20"
+exec "room_config/modes/fngsuperconfig.rcfg"
+
+# add mode switch votes
+exec "room_config/modes.rcfg"

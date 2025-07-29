@@ -1,0 +1,11 @@
+# room config (map votes)
+
+add_vote "Change Map: AliveFNG" "map AliveFNG"
+add_vote "Change Map: solofng5ez" "map solofng5ez"
+add_vote "Change Map: openfng2" "map openfng2"
+add_vote "Change Map: openfng3" "map openfng3"
+add_vote "Change Map: openfng4" "map openfng4"
+add_vote "Change Map: openfng5" "map openfng5"
+add_vote "Change Map: openfng5-Beat" "map openfng5-Beat"
+add_vote "Change Map: openfng6" "map openfng6"
+add_vote "Change Map: openfng7" "map openfng7"

@@ -1,6 +1,7 @@
 #ifndef GAME_SERVER_GAMEMODES_FNG_H
 #define GAME_SERVER_GAMEMODES_FNG_H
 
+#include "catch.h"
 #include <game/server/gamecontroller.h>
 
 class CGameControllerSoloFNG : public IGameController
@@ -70,5 +71,7 @@ private:
 public:
 	CGameControllerFNG();
 };
+
+typedef CGameControllerCatch<CGameControllerSoloFNG> CGameControllerCatchFNG;
 
 #endif // GAME_SERVER_GAMEMODES_FNG_H

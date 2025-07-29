@@ -17,16 +17,16 @@ CGameControllerSoloFNG::CGameControllerSoloFNG()
 
 	INSTANCE_CONFIG_INT(&m_TeamScoreNormal, "team_score_normal", 5, 0, 100, CFGFLAG_CHAT | CFGFLAG_INSTANCE, "Points a team receives for grabbing into normal spikes")
 	INSTANCE_CONFIG_INT(&m_TeamScoreTeam, "team_score_team", 10, 0, 100, CFGFLAG_CHAT | CFGFLAG_INSTANCE, "Points a team receives for grabbing into team spikes")
-	INSTANCE_CONFIG_INT(&m_TeamScoreGold, "team_score_gold", 15, 0, 100, CFGFLAG_CHAT | CFGFLAG_INSTANCE, "Points a team receives for grabbing into golden spikes")
-	INSTANCE_CONFIG_INT(&m_TeamScoreGreen, "team_score_green", 15, 0, 100, CFGFLAG_CHAT | CFGFLAG_INSTANCE, "Points a team receives for grabbing into green spikes")
-	INSTANCE_CONFIG_INT(&m_TeamScorePurple, "team_score_purple", 15, 0, 100, CFGFLAG_CHAT | CFGFLAG_INSTANCE, "Points a team receives for grabbing into purple spikes")
+	INSTANCE_CONFIG_INT(&m_TeamScoreGold, "team_score_gold", 18, 0, 100, CFGFLAG_CHAT | CFGFLAG_INSTANCE, "Points a team receives for grabbing into golden spikes")
+	INSTANCE_CONFIG_INT(&m_TeamScoreGreen, "team_score_green", 3, 0, 100, CFGFLAG_CHAT | CFGFLAG_INSTANCE, "Points a team receives for grabbing into green spikes")
+	INSTANCE_CONFIG_INT(&m_TeamScorePurple, "team_score_purple", 4, 0, 100, CFGFLAG_CHAT | CFGFLAG_INSTANCE, "Points a team receives for grabbing into purple spikes")
 	INSTANCE_CONFIG_INT(&m_TeamScoreFalse, "team_score_false", -2, -100, 0, CFGFLAG_CHAT | CFGFLAG_INSTANCE, "Points a team receives for grabbing into opponents spikes")
 
 	INSTANCE_CONFIG_INT(&m_PlayerScoreNormal, "player_score_normal", 3, 0, 100, CFGFLAG_CHAT | CFGFLAG_INSTANCE, "Points a player receives for grabbing into normal spikes")
 	INSTANCE_CONFIG_INT(&m_PlayerScoreTeam, "player_score_team", 5, 0, 100, CFGFLAG_CHAT | CFGFLAG_INSTANCE, "Points a player receives for grabbing into team spikes")
-	INSTANCE_CONFIG_INT(&m_PlayerScoreGold, "player_score_gold", 7, 0, 100, CFGFLAG_CHAT | CFGFLAG_INSTANCE, "Points a player receives for grabbing into golden spikes")
-	INSTANCE_CONFIG_INT(&m_PlayerScoreGreen, "player_score_green", 8, 0, 100, CFGFLAG_CHAT | CFGFLAG_INSTANCE, "Points a player receives for grabbing into green spikes")
-	INSTANCE_CONFIG_INT(&m_PlayerScorePurple, "player_score_purple", 9, 0, 100, CFGFLAG_CHAT | CFGFLAG_INSTANCE, "Points a player receives for grabbing into purple spikes")
+	INSTANCE_CONFIG_INT(&m_PlayerScoreGold, "player_score_gold", 8, 0, 100, CFGFLAG_CHAT | CFGFLAG_INSTANCE, "Points a player receives for grabbing into golden spikes")
+	INSTANCE_CONFIG_INT(&m_PlayerScoreGreen, "player_score_green", 2, 0, 100, CFGFLAG_CHAT | CFGFLAG_INSTANCE, "Points a player receives for grabbing into green spikes")
+	INSTANCE_CONFIG_INT(&m_PlayerScorePurple, "player_score_purple", 3, 0, 100, CFGFLAG_CHAT | CFGFLAG_INSTANCE, "Points a player receives for grabbing into purple spikes")
 	INSTANCE_CONFIG_INT(&m_PlayerScoreFalse, "player_score_false", -5, -100, 0, CFGFLAG_CHAT | CFGFLAG_INSTANCE, "Points a player receives for grabbing into opponents spikes")
 
 	INSTANCE_CONFIG_INT(&m_PlayerFreezeScore, "player_freeze_score", 1, 0, 100, CFGFLAG_CHAT | CFGFLAG_INSTANCE, "Points a player receives for freezing an opponent")
@@ -398,4 +398,14 @@ bool CGameControllerSoloFNG::CanPause(int RequestedTicks)
 	}
 
 	return true;
+}
+
+template<>
+CGameControllerCatch<CGameControllerSoloFNG>::CGameControllerCatch()
+: CGameControllerSoloFNG()
+{
+	m_pGameType = "catchfng";
+	m_GameFlags = IGF_MARK_SURVIVAL;
+	m_DDNetInfoFlag |= GAMEINFOFLAG_PREDICT_FNG | GAMEINFOFLAG_ENTITIES_FNG;
+	RegisterConfig();
 }
