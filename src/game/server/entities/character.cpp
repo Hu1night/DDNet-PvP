@@ -1043,10 +1043,14 @@ void CCharacter::Snap(int SnappingClient, int OtherMode)
 	if(m_pPowerupWeapon && WeaponFlag & (m_pPowerupWeapon->GetType() + 14))
 		IsWeaponClassic = false;
 
-	if(IsWeaponClassic) // check powerup weapon
+	CWeapon *pWeapon = CurrentWeapon();
+	if(pWeapon)
+	{
+		pWeapon->Snap(SnappingClient, OtherMode);
+		WeaponFlag |= 1 << (pWeapon->GetType() + 14); // snap in-hand waepon only
+	}
+	if(IsWeaponClassic)
 		pDDNetCharacter->m_Flags |= WeaponFlag; // snap all weapons
-	else if(CurrentWeapon())
-		WeaponFlag |= 1 << (CurrentWeapon()->GetType() + 14); // snap in-hand waepon only
 
 	if(SnappingClient == GetPlayer()->GetCID())
 	{
