@@ -187,15 +187,15 @@ public:
 	std::list<class CCharacter *> IntersectedCharacters(vec2 Pos0, vec2 Pos1, float Radius, class CEntity *pNotThis = 0, bool IgnoreSolo = true);
 
 	// helper functions
-	void CreateDamageIndCircle(vec2 Pos, bool Clockwise, float AngleMod, int Amount, int Total, float RadiusScale = 1.0f, int64 Mask = -1LL);
-	void CreateDamageInd(vec2 Pos, float AngleMod, int Amount, int64 Mask = -1LL);
-	void CreateExplosionParticle(vec2 Pos, int64 Mask = -1LL);
-	void CreateExplosion(vec2 Pos, int Owner, int Weapon, int WeaponType, int Damage, bool NoKnockback, int64 Mask = -1LL);
-	void CreateHammerHit(vec2 Pos, int64 Mask = -1LL);
-	void CreatePlayerSpawn(vec2 Pos, int64 Mask = -1LL);
-	void CreateDeath(vec2 Pos, int Who, int64 Mask = -1LL);
-	void CreateSound(vec2 Pos, int Sound, int64 Mask = -1LL);
-	void CreateSoundGlobal(int Sound, int64 Mask = -1LL);
+	void CreateDamageIndCircle(vec2 Pos, bool Clockwise, float AngleMod, int Amount, int Total, float RadiusScale = 1.0f, CClientMask Mask = CmaskAll());
+	void CreateDamageInd(vec2 Pos, float AngleMod, int Amount, CClientMask Mask = CmaskAll());
+	void CreateExplosionParticle(vec2 Pos, CClientMask Mask = CmaskAll());
+	void CreateExplosion(vec2 Pos, int Owner, int Weapon, int WeaponType, int Damage, bool NoKnockback, CClientMask Mask = CmaskAll());
+	void CreateHammerHit(vec2 Pos, CClientMask Mask = CmaskAll());
+	void CreatePlayerSpawn(vec2 Pos, CClientMask Mask = CmaskAll());
+	void CreateDeath(vec2 Pos, int Who, CClientMask Mask = CmaskAll());
+	void CreateSound(vec2 Pos, int Sound, CClientMask Mask = CmaskAll());
+	void CreateSoundGlobal(int Sound, CClientMask Mask = CmaskAll());
 };
 
 #endif

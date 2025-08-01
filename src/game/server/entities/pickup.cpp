@@ -83,11 +83,11 @@ void CPickup::Tick()
 
 		if(pChr && pChr->IsAlive() && (isSoloInteract || isNormalInteract))
 		{
-			int64 Mask = 0;
+			CClientMask Mask = 0;
 			if(isSoloInteract)
 				Mask = CmaskOne(i);
 			else if(isNormalInteract)
-				Mask = -1LL;
+				Mask = CmaskAll();
 
 			SPickupSound PlaySound;
 			PlaySound.m_Global = false;

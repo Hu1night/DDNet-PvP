@@ -329,7 +329,7 @@ void CGameWorld::ReleaseHooked(int ClientID)
 	}
 }
 
-void CGameWorld::CreateDamageIndCircle(vec2 Pos, bool Clockwise, float Angle, int Amount, int Total, float RadiusScale, int64 Mask)
+void CGameWorld::CreateDamageIndCircle(vec2 Pos, bool Clockwise, float Angle, int Amount, int Total, float RadiusScale, CClientMask Mask)
 {
 	float s = 3 * pi / 2 + Angle;
 	float e = s + 2 * pi;
@@ -348,7 +348,7 @@ void CGameWorld::CreateDamageIndCircle(vec2 Pos, bool Clockwise, float Angle, in
 	}
 }
 
-void CGameWorld::CreateDamageInd(vec2 Pos, float Angle, int Amount, int64 Mask)
+void CGameWorld::CreateDamageInd(vec2 Pos, float Angle, int Amount, CClientMask Mask)
 {
 	float a = 3 * pi / 2 + Angle;
 	int s = round_to_int((a - pi / 3) * 256.0f);
@@ -366,7 +366,7 @@ void CGameWorld::CreateDamageInd(vec2 Pos, float Angle, int Amount, int64 Mask)
 	}
 }
 
-void CGameWorld::CreateHammerHit(vec2 Pos, int64 Mask)
+void CGameWorld::CreateHammerHit(vec2 Pos, CClientMask Mask)
 {
 	// create the event
 	CNetEvent_HammerHit *pEvent = (CNetEvent_HammerHit *)m_Events.Create(NETEVENTTYPE_HAMMERHIT, sizeof(CNetEvent_HammerHit), Mask);
@@ -377,7 +377,7 @@ void CGameWorld::CreateHammerHit(vec2 Pos, int64 Mask)
 	}
 }
 
-void CGameWorld::CreateExplosionParticle(vec2 Pos, int64 Mask)
+void CGameWorld::CreateExplosionParticle(vec2 Pos, CClientMask Mask)
 {
 	CNetEvent_Explosion *pEvent = (CNetEvent_Explosion *)m_Events.Create(NETEVENTTYPE_EXPLOSION, sizeof(CNetEvent_Explosion), Mask);
 	if(pEvent)
@@ -387,7 +387,7 @@ void CGameWorld::CreateExplosionParticle(vec2 Pos, int64 Mask)
 	}
 }
 
-void CGameWorld::CreateExplosion(vec2 Pos, int Owner, int Weapon, int WeaponID, int MaxDamage, bool NoKnockback, int64 Mask)
+void CGameWorld::CreateExplosion(vec2 Pos, int Owner, int Weapon, int WeaponID, int MaxDamage, bool NoKnockback, CClientMask Mask)
 {
 	// create the event
 	CreateExplosionParticle(Pos, Mask);
@@ -424,7 +424,7 @@ void CGameWorld::CreateExplosion(vec2 Pos, int Owner, int Weapon, int WeaponID, 
 	}
 }
 
-void CGameWorld::CreatePlayerSpawn(vec2 Pos, int64 Mask)
+void CGameWorld::CreatePlayerSpawn(vec2 Pos, CClientMask Mask)
 {
 	// create the event
 	CNetEvent_Spawn *ev = (CNetEvent_Spawn *)m_Events.Create(NETEVENTTYPE_SPAWN, sizeof(CNetEvent_Spawn), Mask);
@@ -435,7 +435,7 @@ void CGameWorld::CreatePlayerSpawn(vec2 Pos, int64 Mask)
 	}
 }
 
-void CGameWorld::CreateDeath(vec2 Pos, int ClientID, int64 Mask)
+void CGameWorld::CreateDeath(vec2 Pos, int ClientID, CClientMask Mask)
 {
 	// create the event
 	CNetEvent_Death *pEvent = (CNetEvent_Death *)m_Events.Create(NETEVENTTYPE_DEATH, sizeof(CNetEvent_Death), Mask);
@@ -447,7 +447,7 @@ void CGameWorld::CreateDeath(vec2 Pos, int ClientID, int64 Mask)
 	}
 }
 
-void CGameWorld::CreateSound(vec2 Pos, int Sound, int64 Mask)
+void CGameWorld::CreateSound(vec2 Pos, int Sound, CClientMask Mask)
 {
 	if(Sound < 0)
 		return;
@@ -462,7 +462,7 @@ void CGameWorld::CreateSound(vec2 Pos, int Sound, int64 Mask)
 	}
 }
 
-void CGameWorld::CreateSoundGlobal(int Sound, int64 Mask)
+void CGameWorld::CreateSoundGlobal(int Sound, CClientMask Mask)
 {
 	if(Sound < 0)
 		return;

@@ -529,9 +529,9 @@ void CCharacter::TickDefered()
 
 		// Some sounds are triggered client-side for the acting player
 		// so we need to avoid duplicating them
-		int64 ExceptSelf = CmaskAllExceptOne(CID);
+		CClientMask ExceptSelf = CmaskAllExceptOne(CID);
 		// Some are triggered client-side but only on Sixup
-		int64 ExceptSelfIfSixup = Server()->IsSixup(CID) ? CmaskAllExceptOne(CID) : -1LL;
+		CClientMask ExceptSelfIfSixup = Server()->IsSixup(CID) ? CmaskAllExceptOne(CID) : CmaskAll();
 
 		if(Events & COREEVENT_GROUND_JUMP)
 			GameWorld()->CreateSound(m_Pos, SOUND_PLAYER_JUMP, ExceptSelf);
@@ -727,7 +727,7 @@ bool CCharacter::TakeDamage(vec2 Force, int Dmg, int From, int Weapon, int Weapo
 		// do damage Hit sound
 		if(From >= 0 && From != m_pPlayer->GetCID() && GameServer()->m_apPlayers[From])
 		{
-			int64 Mask = CmaskOneAndViewer(From);
+			CClientMask Mask = GameServer()->CmaskOneAndViewer(From);
 			GameWorld()->CreateSound(GameServer()->m_apPlayers[From]->m_ViewPos, SOUND_HIT, Mask);
 		}
 	}

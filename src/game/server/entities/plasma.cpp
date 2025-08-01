@@ -81,7 +81,7 @@ void CPlasma::Tick()
 				WEAPON_ID_DDRACE,
 				0,
 				true,
-				-1LL);
+				CmaskAll());
 		Reset();
 	}
 }

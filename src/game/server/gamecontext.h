@@ -419,22 +419,17 @@ public:
 	int m_ChatResponseTargetID;
 	int m_ChatPrintCBIndex;
 
-	static int64 ms_TeamMask[3];
-	static int64 ms_SpectatorMask[MAX_CLIENTS];
-	static int64 ms_TeamSpectatorMask[2];
+	CClientMask m_TeamMask[3];
+	CClientMask m_SpectatorMask[MAX_CLIENTS];
+	CClientMask m_TeamSpectatorMask[2];
+
+	inline CClientMask CmaskViewer(int ClientID) { return m_SpectatorMask[ClientID]; }
+	inline CClientMask CmaskOneAndViewer(int ClientID) { return CmaskViewer(ClientID).set(ClientID); }
+	inline CClientMask CmaskTeam(int Team) { return m_TeamMask[Team + 1]; }
+	inline CClientMask CmaskTeamViewer(int Team) { return m_TeamSpectatorMask[Team]; }
+	inline CClientMask CmaskTeamAndViewer(int Team) { return m_TeamMask[Team + 1] | CmaskTeamViewer(Team); }
 
 	void OnUpdatePlayerServerInfo(class CJsonStringWriter *pJSonWriter, int Id) override;
 };
 
-inline int64 CmaskAll() { return -1LL; }
-inline int64 CmaskOne(int ClientID) { return 1LL << ClientID; }
-inline int64 CmaskViewer(int ClientID) { return CGameContext::ms_SpectatorMask[ClientID]; }
-inline int64 CmaskOneAndViewer(int ClientID) { return 1LL << ClientID | CmaskViewer(ClientID); }
-inline int64 CmaskTeam(int Team) { return CGameContext::ms_TeamMask[Team + 1]; }
-inline int64 CmaskTeamViewer(int Team) { return CGameContext::ms_TeamSpectatorMask[Team]; }
-inline int64 CmaskTeamAndViewer(int Team) { return CGameContext::ms_TeamMask[Team + 1] | CmaskTeamViewer(Team); }
-inline int64 CmaskSet(int64 Mask, int ClientID) { return Mask | CmaskOne(ClientID); }
-inline int64 CmaskUnset(int64 Mask, int ClientID) { return Mask & ~CmaskOne(ClientID); }
-inline int64 CmaskAllExceptOne(int ClientID) { return ~CmaskOne(ClientID); }
-inline bool CmaskIsSet(int64 Mask, int ClientID) { return (Mask & CmaskOne(ClientID)) != 0; }
 #endif

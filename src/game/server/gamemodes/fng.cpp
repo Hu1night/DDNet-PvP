@@ -98,7 +98,7 @@ void CGameControllerSoloFNG::OnPreTick()
 			int Seconds = ceil(pChr->m_FreezeTime / (float)Server()->TickSpeed());
 			pChr->SetArmor(Seconds);
 			if((pChr->m_FreezeTime + 1) % Server()->TickSpeed() == 0)
-				GameWorld()->CreateDamageIndCircle(pChr->GetPos(), false, pi, Seconds, 10, 0.8f, (IsTeamplay() ? CmaskTeam(pChr->GetPlayer()->GetTeam()) : CmaskOne(pChr->GetPlayer()->GetCID())) | CmaskTeam(TEAM_SPECTATORS));
+				GameWorld()->CreateDamageIndCircle(pChr->GetPos(), false, pi, Seconds, 10, 0.8f, (IsTeamplay() ? GameServer()->CmaskTeam(pChr->GetPlayer()->GetTeam()) : CmaskOne(pChr->GetPlayer()->GetCID())) | GameServer()->CmaskTeam(TEAM_SPECTATORS));
 		}
 
 		pChr = (CCharacter *)pChr->TypeNext();
@@ -278,9 +278,9 @@ bool CGameControllerSoloFNG::OnCharacterProximateTile(CCharacter *pChr, int MapI
 					else if(pAttacker->GetTeam() == TEAM_BLUE)
 						m_aTeamscore[TEAM_BLUE] += m_TeamScoreFalse;
 
-					GameWorld()->CreateSoundGlobal(SOUND_CTF_DROP, CmaskOneAndViewer(Attacker));
-					GameWorld()->CreateSoundGlobal(SOUND_TEE_CRY, CmaskOneAndViewer(Attacker));
-					GameWorld()->CreateSoundGlobal(SOUND_CTF_DROP, CmaskOneAndViewer(Victim));
+					GameWorld()->CreateSoundGlobal(SOUND_CTF_DROP, GameServer()->CmaskOneAndViewer(Attacker));
+					GameWorld()->CreateSoundGlobal(SOUND_TEE_CRY, GameServer()->CmaskOneAndViewer(Attacker));
+					GameWorld()->CreateSoundGlobal(SOUND_CTF_DROP, GameServer()->CmaskOneAndViewer(Victim));
 					return true;
 				}
 			}
@@ -305,11 +305,11 @@ bool CGameControllerSoloFNG::OnCharacterProximateTile(CCharacter *pChr, int MapI
 				m_aTeamscore[TEAM_BLUE] += TeamScore;
 
 			if(PlayerScore >= m_PlayerScoreGold)
-				GameWorld()->CreateSoundGlobal(SOUND_CTF_CAPTURE, CmaskOneAndViewer(Attacker));
+				GameWorld()->CreateSoundGlobal(SOUND_CTF_CAPTURE, GameServer()->CmaskOneAndViewer(Attacker));
 			else
-				GameWorld()->CreateSoundGlobal(SOUND_CTF_GRAB_PL, CmaskOneAndViewer(Attacker));
+				GameWorld()->CreateSoundGlobal(SOUND_CTF_GRAB_PL, GameServer()->CmaskOneAndViewer(Attacker));
 
-			GameWorld()->CreateSoundGlobal(SOUND_CTF_GRAB_EN, CmaskOneAndViewer(Victim));
+			GameWorld()->CreateSoundGlobal(SOUND_CTF_GRAB_EN, GameServer()->CmaskOneAndViewer(Victim));
 		}
 
 		return true;

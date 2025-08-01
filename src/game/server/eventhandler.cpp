@@ -21,7 +21,7 @@ void CEventHandler::SetGameServer(CGameContext *pGameServer, IGameController *pC
 	m_pController = pController;
 }
 
-void *CEventHandler::Create(int Type, int Size, int64 Mask)
+void *CEventHandler::Create(int Type, int Size, CClientMask Mask)
 {
 	if(m_NumEvents == MAX_EVENTS)
 		return 0;

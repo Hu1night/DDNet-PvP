@@ -36,10 +36,6 @@ enum
 	NO_RESET
 };
 
-int64 CGameContext::ms_TeamMask[3] = {0};
-int64 CGameContext::ms_SpectatorMask[MAX_CLIENTS] = {0};
-int64 CGameContext::ms_TeamSpectatorMask[2] = {0};
-
 void CGameContext::Construct(int Resetting)
 {
 	m_Resetting = 0;

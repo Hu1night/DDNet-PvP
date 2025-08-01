@@ -175,15 +175,13 @@ static int PlayerFlags_SixToSeven(int Flags)
 
 void CPlayer::SetSpectatorID(int ClientID)
 {
-	int64 Mask = CmaskOne(m_ClientID);
-
 	// unset prev spectating mask
 	if(m_SpectatorID >= 0)
 	{
-		CGameContext::ms_SpectatorMask[m_SpectatorID] &= ~Mask;
+		GameServer()->m_SpectatorMask[m_SpectatorID].set(m_ClientID, false);
 		int SpecTeam = GameServer()->m_apPlayers[m_SpectatorID] ? GameServer()->m_apPlayers[m_SpectatorID]->GetTeam() : TEAM_SPECTATORS;
 		if(SpecTeam != TEAM_SPECTATORS)
-			CGameContext::ms_TeamSpectatorMask[SpecTeam] &= ~Mask;
+			GameServer()->m_TeamSpectatorMask[SpecTeam].set(m_ClientID, false);
 	}
 
 	m_SpectatorID = ClientID;
@@ -191,10 +189,10 @@ void CPlayer::SetSpectatorID(int ClientID)
 	// set new spectating mask
 	if(m_SpectatorID >= 0)
 	{
-		CGameContext::ms_SpectatorMask[m_SpectatorID] |= Mask;
+		GameServer()->m_SpectatorMask[m_SpectatorID].set(m_ClientID);
 		int SpecTeam = GameServer()->m_apPlayers[m_SpectatorID] ? GameServer()->m_apPlayers[m_SpectatorID]->GetTeam() : TEAM_SPECTATORS;
 		if(SpecTeam != TEAM_SPECTATORS)
-			CGameContext::ms_TeamSpectatorMask[SpecTeam] |= Mask;
+			GameServer()->m_TeamSpectatorMask[SpecTeam].set(m_ClientID);
 	}
 }
 
@@ -857,9 +855,9 @@ void CPlayer::SetTeam(int Team)
 	for(int i = 0; i < 3; i++)
 	{
 		if(i == Team + 1)
-			CGameContext::ms_TeamMask[i] |= CmaskOne(m_ClientID);
+			GameServer()->m_TeamMask[i].set(m_ClientID);
 		else
-			CGameContext::ms_TeamMask[i] &= ~CmaskOne(m_ClientID);
+			GameServer()->m_TeamMask[i].set(m_ClientID, false);
 	}
 
 	protocol7::CNetMsg_Sv_Team Msg;

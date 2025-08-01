@@ -5,6 +5,14 @@
 
 #include <base/system.h>
 #include <base/vmath.h>
+#include <engine/shared/protocol.h>
+
+inline CClientMask CmaskAll() { CClientMask Mask; return Mask.set(); }
+inline CClientMask CmaskOne(int ClientID) {  CClientMask Mask; return Mask.set(ClientID); }
+inline CClientMask CmaskSet(CClientMask Mask, int ClientID) { return Mask.set(ClientID); }
+inline CClientMask CmaskUnset(CClientMask Mask, int ClientID) { return Mask.set(ClientID, false); }
+inline CClientMask CmaskAllExceptOne(int ClientID) { return ~CmaskOne(ClientID); }
+inline bool CmaskIsSet(CClientMask Mask, int ClientID) { return Mask.test(ClientID); }
 
 class CEventHandler
 {
@@ -14,7 +22,7 @@ class CEventHandler
 	int m_aTypes[MAX_EVENTS]; // TODO: remove some of these arrays
 	int m_aOffsets[MAX_EVENTS];
 	int m_aSizes[MAX_EVENTS];
-	int64 m_aClientMasks[MAX_EVENTS];
+	CClientMask m_aClientMasks[MAX_EVENTS];
 	char m_aData[MAX_DATASIZE];
 
 	class CGameContext *m_pGameServer;
@@ -29,7 +37,7 @@ public:
 	void SetGameServer(CGameContext *pGameServer, IGameController *pController);
 
 	CEventHandler();
-	void *Create(int Type, int Size, int64 Mask = -1LL);
+	void *Create(int Type, int Size, CClientMask Mask = CmaskAll());
 	void Clear();
 	void Snap(int SnappingClient);
 
