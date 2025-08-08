@@ -46,7 +46,7 @@ void CPlayer::Reset()
 	m_LastFire = false;
 
 	int *pIdMap = Server()->GetIdMap(m_ClientID);
-	for(int i = 1; i < VANILLA_MAX_CLIENTS; i++)
+	for(int i = 1; i < SERVER_MAX_CLIENTS; i++)
 	{
 		pIdMap[i] = -1;
 	}
@@ -615,13 +615,14 @@ void CPlayer::Snap(int SnappingClient)
 
 void CPlayer::FakeSnap()
 {
+	if(GetClientVersion() >= VERSION_DDNET_128_PLAYERS && Server()->IsSixup(m_ClientID))
+		return;
+	
+	int MaxClient = VANILLA_MAX_CLIENTS;
 	if(GetClientVersion() >= VERSION_DDNET_OLD)
-		return;
+		MaxClient = SERVER_MAX_CLIENTS;
 
-	if(Server()->IsSixup(m_ClientID))
-		return;
-
-	int FakeID = VANILLA_MAX_CLIENTS - 1;
+	int FakeID = MaxClient - 1;
 
 	CNetObj_ClientInfo *pClientInfo = static_cast<CNetObj_ClientInfo *>(Server()->SnapNewItem(NETOBJTYPE_CLIENTINFO, FakeID, sizeof(CNetObj_ClientInfo)));
 

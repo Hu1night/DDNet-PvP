@@ -209,7 +209,7 @@ public:
 	};
 
 	CClient m_aClients[MAX_CLIENTS];
-	int m_aIdMap[MAX_CLIENTS * VANILLA_MAX_CLIENTS];
+	int m_aIdMap[MAX_CLIENTS * SERVER_MAX_CLIENTS];
 
 	CSnapshotDelta m_SnapshotDelta;
 	CSnapshotBuilder m_SnapshotBuilder;
@@ -359,12 +359,14 @@ public:
 		void AddChunk(const void *pData, int Size);
 		void Clear();
 	};
-	CCache m_aServerInfoCache[3 * 2];
+	//CCache m_aServerInfoCache[3 * 2];
 	CCache m_aSixupServerInfoCache[2];
 	bool m_ServerInfoNeedsUpdate;
 
 	void UpdateRegisterServerInfo();
 	void ExpireServerInfo();
+	//void CacheServerInfo(CCache *pCache, int Type, bool SendClients);
+	void CacheServerInfoSixup(CCache *pCache, bool SendClients);
 	void SendServerInfo(const NETADDR *pAddr, int Token, int Type, bool SendClients);
 	void GetServerInfoSixup(CPacker *pPacker, int Token, bool SendClients);
 	bool RateLimitServerInfoConnless();

@@ -2040,7 +2040,69 @@ void CServer::SendServerInfo(const NETADDR *pAddr, int Token, int Type, bool Sen
 	#undef ADD_INT
 }
 
-void CServer::GetServerInfoSixup(CPacker *pPacker, int Token, bool SendClients)
+void CServer::CacheServerInfoSixup(CCache *pCache, bool SendClients)
+{
+	pCache->Clear();
+
+	CPacker Packer;
+	Packer.Reset();
+
+	// Could be moved to a separate function and cached
+	// count the players
+	int PlayerCount = 0, ClientCount = 0;
+	for(int i = 0; i < MAX_CLIENTS; i++)
+	{
+		if(m_aClients[i].m_State != CClient::STATE_EMPTY)
+		{
+			if(GameServer()->IsClientPlayer(i))
+				PlayerCount++;
+
+			ClientCount++;
+		}
+	}
+
+	char aVersion[32];
+	str_format(aVersion, sizeof(aVersion), "0.7↔%s", GameServer()->Version());
+	Packer.AddString(aVersion, 32);
+	Packer.AddString(g_Config.m_SvName, 64);
+	Packer.AddString(g_Config.m_SvHostname, 128);
+	Packer.AddString(GetMapName(), 32);
+
+	// gametype
+	Packer.AddString(GameServer()->GameType(), 16);
+
+	// flags
+	int Flags = SERVER_FLAG_TIMESCORE;
+	if(g_Config.m_Password[0]) // password set
+		Flags |= SERVER_FLAG_PASSWORD;
+	Packer.AddInt(Flags);
+
+	int MaxClients = m_NetServer.MaxClients();
+	Packer.AddInt(g_Config.m_SvSkillLevel); // server skill level
+	Packer.AddInt(PlayerCount); // num players
+	Packer.AddInt(maximum(MaxClients - g_Config.m_SvReservedSlots, PlayerCount)); // max players
+	Packer.AddInt(ClientCount); // num clients
+	Packer.AddInt(maximum(MaxClients - g_Config.m_SvReservedSlots, ClientCount)); // max clients
+
+	if(SendClients)
+	{
+		for(int i = 0; i < MAX_CLIENTS; i++)
+		{
+			if(m_aClients[i].m_State != CClient::STATE_EMPTY)
+			{
+				Packer.AddString(ClientName(i), MAX_NAME_LENGTH); // client name
+				Packer.AddString(ClientClan(i), MAX_CLAN_LENGTH); // client clan
+				Packer.AddInt(m_aClients[i].m_Country); // client country
+				Packer.AddInt(m_aClients[i].m_Score); // client score
+				Packer.AddInt(GameServer()->IsClientPlayer(i) ? 0 : 1); // flag spectator=1, bot=2 (player=0)
+			}
+		}
+	}
+
+	pCache->AddChunk(Packer.Data(), Packer.Size());
+}
+
+void CServer::GetServerInfoSixup(CPacker *pPacker, int Token, bool SendClients) // TODO:: SendClients always = false when called
 {
 	if(Token != -1)
 	{
@@ -2160,6 +2222,9 @@ void CServer::UpdateServerInfo(bool Resend)
 		return;
 
 	UpdateRegisterServerInfo();
+
+	for(int i = 0; i < 2; i++)
+		CacheServerInfoSixup(&m_aSixupServerInfoCache[i], i);
 
 	if(Resend)
 	{
@@ -3661,7 +3726,7 @@ const char *CServer::GetAnnouncementLine(char const *pFileName)
 
 int *CServer::GetIdMap(int ClientID)
 {
-	return m_aIdMap + VANILLA_MAX_CLIENTS * ClientID;
+	return m_aIdMap + SERVER_MAX_CLIENTS * ClientID;
 }
 
 bool CServer::SetTimedOut(int ClientID, int OrigID)

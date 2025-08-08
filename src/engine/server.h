@@ -152,15 +152,17 @@ public:
 
 	bool Translate(int &Target, int Client)
 	{
-		if(IsSixup(Client))
-			return true;
-		CClientInfo Info;
+		return true;
+		CClientInfo Info; 
 		GetClientInfo(Client, &Info);
-		if(Info.m_DDNetVersion >= VERSION_DDNET_OLD)
+		if(IsSixup(Client) || Info.m_DDNetVersion >= VERSION_DDNET_128_PLAYERS)
 			return true;
+		int MaxPlayer = VANILLA_MAX_CLIENTS;
+		if(Info.m_DDNetVersion >= VERSION_DDNET_OLD)
+			MaxPlayer = SERVER_MAX_CLIENTS;
 		int *pMap = GetIdMap(Client);
 		bool Found = false;
-		for(int i = 0; i < VANILLA_MAX_CLIENTS; i++)
+		for(int i = 0; i < MaxPlayer; i++)
 		{
 			if(Target == pMap[i])
 			{
@@ -174,13 +176,14 @@ public:
 
 	bool ReverseTranslate(int &Target, int Client)
 	{
-		if(IsSixup(Client))
-			return true;
-		CClientInfo Info;
+		CClientInfo Info; 
 		GetClientInfo(Client, &Info);
-		if(Info.m_DDNetVersion >= VERSION_DDNET_OLD)
+		if(IsSixup(Client) || Info.m_DDNetVersion >= VERSION_DDNET_128_PLAYERS)
 			return true;
-		Target = clamp(Target, 0, VANILLA_MAX_CLIENTS - 1);
+		int MaxPlayer = VANILLA_MAX_CLIENTS;
+		if(Info.m_DDNetVersion >= VERSION_DDNET_OLD)
+			MaxPlayer = SERVER_MAX_CLIENTS;
+		Target = clamp(Target, 0, MaxPlayer - 1);
 		int *pMap = GetIdMap(Client);
 		if(pMap[Target] == -1)
 			return false;

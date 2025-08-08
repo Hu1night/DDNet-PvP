@@ -412,8 +412,10 @@ void CGameContext::SendCurrentGameInfo(int ClientID, bool IsJoin)
 	CPlayer *pPlayer = m_apPlayers[ClientID];
 
 	// new info for others
+	int TransCID = ClientID;
+	Server()->Translate(TransCID, ClientID);
 	protocol7::CNetMsg_Sv_ClientInfo NewClientInfoMsg;
-	NewClientInfoMsg.m_ClientID = ClientID;
+	NewClientInfoMsg.m_ClientID = TransCID;
 	NewClientInfoMsg.m_Local = 0;
 	NewClientInfoMsg.m_Team = pPlayer->GetTeam();
 	NewClientInfoMsg.m_pName = Server()->ClientName(ClientID);
@@ -3838,7 +3840,7 @@ void CGameContext::UpdatePlayerMaps()
 		{
 			j = -1;
 		}
-		for(int j = 0; j < VANILLA_MAX_CLIENTS; j++)
+		for(int j = 0; j < SERVER_MAX_CLIENTS; j++)
 		{
 			if(pMap[j] == -1)
 				continue;
@@ -3848,29 +3850,29 @@ void CGameContext::UpdatePlayerMaps()
 				rMap[pMap[j]] = j;
 		}
 
-		std::nth_element(&Dist[0], &Dist[VANILLA_MAX_CLIENTS - 1], &Dist[MAX_CLIENTS], distCompare);
+		std::nth_element(&Dist[0], &Dist[SERVER_MAX_CLIENTS - 1], &Dist[MAX_CLIENTS], distCompare);
 
 		int Mapc = 0;
 		int Demand = 0;
-		for(int j = 0; j < VANILLA_MAX_CLIENTS - 1; j++)
+		for(int j = 0; j < SERVER_MAX_CLIENTS - 1; j++)
 		{
 			int k = Dist[j].second;
 			if(rMap[k] != -1 || Dist[j].first > 5e9)
 				continue;
-			while(Mapc < VANILLA_MAX_CLIENTS && pMap[Mapc] != -1)
+			while(Mapc < SERVER_MAX_CLIENTS && pMap[Mapc] != -1)
 				Mapc++;
-			if(Mapc < VANILLA_MAX_CLIENTS - 1)
+			if(Mapc < SERVER_MAX_CLIENTS - 1)
 				pMap[Mapc] = k;
 			else
 				Demand++;
 		}
-		for(int j = MAX_CLIENTS - 1; j > VANILLA_MAX_CLIENTS - 2; j--)
+		for(int j = MAX_CLIENTS - 1; j > SERVER_MAX_CLIENTS - 2; j--)
 		{
 			int k = Dist[j].second;
 			if(rMap[k] != -1 && Demand-- > 0)
 				pMap[rMap[k]] = -1;
 		}
-		pMap[VANILLA_MAX_CLIENTS - 1] = -1; // player with empty name to say chat msgs
+		pMap[SERVER_MAX_CLIENTS - 1] = -1; // player with empty name to say chat msgs
 	}
 }
 
