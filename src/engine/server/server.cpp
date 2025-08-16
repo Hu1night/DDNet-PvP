@@ -282,6 +282,8 @@ void CServer::CClient::Reset()
 	m_DDNetVersion = VERSION_NONE;
 	m_GotDDNetVersionPacket = false;
 	m_DDNetVersionSettled = false;
+	m_GotCarbonVersionPacket = false;
+	m_CarbonVersion = protocol7::VERSION_NONE;
 }
 
 CServer::CServer()
@@ -564,6 +566,8 @@ int CServer::GetClientInfo(int ClientID, CClientInfo *pInfo) const
 		pInfo->m_Latency = m_aClients[ClientID].m_Latency;
 		pInfo->m_GotDDNetVersion = m_aClients[ClientID].m_DDNetVersionSettled;
 		pInfo->m_DDNetVersion = m_aClients[ClientID].m_DDNetVersion >= 0 ? m_aClients[ClientID].m_DDNetVersion : VERSION_VANILLA;
+		pInfo->m_GotCarbonVersion = m_aClients[ClientID].m_GotCarbonVersionPacket;
+		pInfo->m_CarbonVersion = m_aClients[ClientID].m_CarbonVersion >= 0 ? m_aClients[ClientID].m_CarbonVersion : protocol7::VERSION_VANILLA;
 		if(m_aClients[ClientID].m_GotDDNetVersionPacket)
 		{
 			pInfo->m_pConnectionID = &m_aClients[ClientID].m_ConnectionID;
@@ -1732,6 +1736,22 @@ void CServer::ProcessClientPacket(CNetChunk *pPacket)
 			Msg.AddRaw(pID, sizeof(*pID));
 			SendMsg(&Msg, MSGFLAG_FLUSH, ClientID);
 		}
+		else if(Msg == NETMSG_CARBON_MSG)
+		{
+			int CarbonMsgID = Unpacker.GetInt();
+			if(Unpacker.Error())
+			{
+				return;
+			}
+			if(CarbonMsgID == protocol7::CARBONMSG_INFO && (pPacket->m_Flags & NET_CHUNKFLAG_VITAL) != 0 && m_aClients[ClientID].m_State == CClient::STATE_PREAUTH)
+			{
+				m_aClients[ClientID].m_GotCarbonVersionPacket = true;
+				m_aClients[ClientID].m_CarbonVersion = Unpacker.GetInt(); // im lazy
+				char aBuf[64];
+				str_format(aBuf, sizeof(aBuf), "carbon client connected, cid=%d carbon_version=0x%x", ClientID, m_aClients[ClientID].m_CarbonVersion);
+				Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "server", aBuf);
+			}
+		}
 		else
 		{
 			if(g_Config.m_Debug)
@@ -2825,13 +2845,13 @@ void CServer::ConStatus(IConsole::IResult *pResult, void *pUser)
 				str_format(aAuthStr, sizeof(aAuthStr), " key=%s %s", pThis->m_AuthManager.KeyIdent(pThis->m_aClients[i].m_AuthKey), pAuthStr);
 			}
 
-			const char *pClientPrefix = "";
-			if(pThis->m_aClients[i].m_Sixup)
-			{
-				pClientPrefix = "0.7:";
-			}
-			str_format(aBuf, sizeof(aBuf), "id=%d addr=<{%s}> name='%s' client=%s%d secure=%s flags=%d%s%s",
-				i, aAddrStr, pThis->m_aClients[i].m_aName, pClientPrefix, pThis->m_aClients[i].m_DDNetVersion,
+			char aClientVersionStr[16];
+			aClientVersionStr[0] = '\0';
+			str_format(aClientVersionStr, sizeof(aClientVersionStr), pThis->m_aClients[i].m_GotCarbonVersionPacket ? "%s%x" : "%s%d", 
+					pThis->m_aClients[i].m_Sixup ? "0.7:" : "", pThis->m_aClients[i].m_GotCarbonVersionPacket ? pThis->m_aClients[i].m_CarbonVersion : pThis->m_aClients[i].m_DDNetVersion);
+
+			str_format(aBuf, sizeof(aBuf), "id=%d addr=<{%s}> name='%s' client=%s secure=%s flags=%d%s%s",
+				i, aAddrStr, pThis->m_aClients[i].m_aName, aClientVersionStr,
 				pThis->m_NetServer.HasSecurityToken(i) ? "yes" : "no", pThis->m_aClients[i].m_Flags, aDnsblStr, aAuthStr);
 		}
 		else

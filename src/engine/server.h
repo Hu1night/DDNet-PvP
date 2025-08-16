@@ -35,6 +35,8 @@ public:
 		bool m_GotDDNetVersion;
 		int m_DDNetVersion;
 		const char *m_pDDNetVersionStr;
+		bool m_GotCarbonVersion;
+		int m_CarbonVersion;
 		const CUuid *m_pConnectionID;
 	};
 

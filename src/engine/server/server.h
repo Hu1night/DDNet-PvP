@@ -198,6 +198,8 @@ public:
 		bool m_DDNetVersionSettled;
 		int m_DDNetVersion;
 		char m_aDDNetVersionStr[64];
+		bool m_GotCarbonVersionPacket;
+		int m_CarbonVersion; // hex
 		CUuid m_ConnectionID;
 
 		// DNSBL

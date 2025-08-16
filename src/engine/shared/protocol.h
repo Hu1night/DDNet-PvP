@@ -143,6 +143,21 @@ enum
 // 	NUM_TUNEZONES = 256,
 // };
 
+namespace protocol7 {
+
+enum
+{
+	CARBONMSG_INFO = 0,
+};
+
+enum
+{
+	VERSION_NONE = -1,
+	VERSION_VANILLA = 0,
+};
+
+} // namespace protocol7
+
 typedef std::bitset<MAX_CLIENTS> CClientMask;
 
 #endif
