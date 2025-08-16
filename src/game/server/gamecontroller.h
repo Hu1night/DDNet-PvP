@@ -8,6 +8,7 @@
 #include <engine/map.h>
 #include <engine/shared/config.h>
 #include <game/generated/protocol.h>
+#include <game/generated/protocol7.h>
 #include <game/voting.h>
 
 #include <map>
@@ -782,6 +783,19 @@ public:
 			Player - the killing player
 	*/
 	virtual void OnKill(class CPlayer *pPlayer);
+
+	/*
+		Function: OnKill
+			Called during CPlayer::Snap() in case you need to fake some snapshots
+			Usually this is not needed
+
+		Arguments:
+			pPlayer - The CPlayer
+	*/
+	virtual void OnPlayerSnap(class CPlayer *pPlayer, int SnappingClient,
+			CNetObj_ClientInfo *pClientInfo, CNetObj_PlayerInfo *pPlayerInfo, CNetObj_SpectatorInfo *pSpectatorInfo, // 0.6
+			protocol7::CNetObj_PlayerInfo *pPlayerInfo7, protocol7::CNetObj_SpectatorInfo *pSpectatorInfo7, // 0.7
+			CNetObj_DDNetSpectatorInfo *pDDNetSpectatorInfo, CNetObj_DDNetPlayer *pDDNetPlayer) {};
 
 public:
 	// =================
