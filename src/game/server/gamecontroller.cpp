@@ -1785,9 +1785,15 @@ void IGameController::Snap(int SnappingClient)
 	if(m_SuddenDeath)
 		GameStateFlags |= GAMESTATEFLAG_SUDDENDEATH;
 
+	CNetObj_GameInfo *pGameInfoObj = nullptr;
+	CNetObj_GameInfoEx *pGameInfoEx = nullptr;
+	CNetObj_GameData *pGameDataObj = nullptr;
+	protocol7::CNetObj_GameData *pGameData = nullptr;
+	protocol7::CNetObj_GameDataTeam *pGameDataTeam = nullptr;
+	protocol7::CNetObj_GameDataFlag *pGameDataFlag = nullptr;
 	if(!isSixUp)
 	{
-		CNetObj_GameInfo *pGameInfoObj = (CNetObj_GameInfo *)Server()->SnapNewItem(NETOBJTYPE_GAMEINFO, 0, sizeof(CNetObj_GameInfo));
+		pGameInfoObj = (CNetObj_GameInfo *)Server()->SnapNewItem(NETOBJTYPE_GAMEINFO, 0, sizeof(CNetObj_GameInfo));
 		if(!pGameInfoObj)
 			return;
 
@@ -1806,7 +1812,7 @@ void IGameController::Snap(int SnappingClient)
 		pGameInfoObj->m_RoundCurrent = m_GameInfo.m_MatchCurrent;
 		pGameInfoObj->m_RoundNum = m_GameInfo.m_MatchNum;
 
-		CNetObj_GameInfoEx *pGameInfoEx = (CNetObj_GameInfoEx *)Server()->SnapNewItem(NETOBJTYPE_GAMEINFOEX, 0, sizeof(CNetObj_GameInfoEx));
+		pGameInfoEx = (CNetObj_GameInfoEx *)Server()->SnapNewItem(NETOBJTYPE_GAMEINFOEX, 0, sizeof(CNetObj_GameInfoEx));
 		if(!pGameInfoEx)
 			return;
 
@@ -1814,7 +1820,7 @@ void IGameController::Snap(int SnappingClient)
 		pGameInfoEx->m_Flags2 = m_DDNetInfoFlag2;
 		pGameInfoEx->m_Version = GAMEINFO_CURVERSION;
 
-		CNetObj_GameData *pGameDataObj = (CNetObj_GameData *)Server()->SnapNewItem(NETOBJTYPE_GAMEDATA, 0, sizeof(CNetObj_GameData));
+		pGameDataObj = (CNetObj_GameData *)Server()->SnapNewItem(NETOBJTYPE_GAMEDATA, 0, sizeof(CNetObj_GameData));
 		if(!pGameDataObj)
 			return;
 
@@ -1835,7 +1841,7 @@ void IGameController::Snap(int SnappingClient)
 	}
 	else
 	{
-		protocol7::CNetObj_GameData *pGameData = static_cast<protocol7::CNetObj_GameData *>(Server()->SnapNewItem(-protocol7::NETOBJTYPE_GAMEDATA, 0, sizeof(protocol7::CNetObj_GameData)));
+		pGameData = static_cast<protocol7::CNetObj_GameData *>(Server()->SnapNewItem(-protocol7::NETOBJTYPE_GAMEDATA, 0, sizeof(protocol7::CNetObj_GameData)));
 		if(!pGameData)
 			return;
 
@@ -1845,7 +1851,7 @@ void IGameController::Snap(int SnappingClient)
 
 		if(IsTeamplay())
 		{
-			protocol7::CNetObj_GameDataTeam *pGameDataTeam = static_cast<protocol7::CNetObj_GameDataTeam *>(Server()->SnapNewItem(-protocol7::NETOBJTYPE_GAMEDATATEAM, 0, sizeof(protocol7::CNetObj_GameDataTeam)));
+			pGameDataTeam = static_cast<protocol7::CNetObj_GameDataTeam *>(Server()->SnapNewItem(-protocol7::NETOBJTYPE_GAMEDATATEAM, 0, sizeof(protocol7::CNetObj_GameDataTeam)));
 			if(!pGameDataTeam)
 				return;
 
@@ -1856,7 +1862,7 @@ void IGameController::Snap(int SnappingClient)
 		SFlagState FlagState;
 		if(GetFlagState(&FlagState))
 		{
-			protocol7::CNetObj_GameDataFlag *pGameDataFlag = static_cast<protocol7::CNetObj_GameDataFlag *>(Server()->SnapNewItem(-protocol7::NETOBJTYPE_GAMEDATAFLAG, 0, sizeof(protocol7::CNetObj_GameDataFlag)));
+			pGameDataFlag = static_cast<protocol7::CNetObj_GameDataFlag *>(Server()->SnapNewItem(-protocol7::NETOBJTYPE_GAMEDATAFLAG, 0, sizeof(protocol7::CNetObj_GameDataFlag)));
 			if(!pGameDataFlag)
 				return;
 
@@ -1908,7 +1914,9 @@ void IGameController::Snap(int SnappingClient)
 		}
 	}
 
-	OnSnap(SnappingClient);
+	OnSnap(SnappingClient,
+			pGameInfoObj, pGameInfoEx, pGameDataObj, // 0.6
+			pGameData, pGameDataTeam, pGameDataFlag); // 0.7
 }
 
 void IGameController::Tick()

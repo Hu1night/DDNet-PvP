@@ -591,7 +591,10 @@ public:
 			Called during Snap() in case you need to fake some snapshots
 			Usually this is not needed
 	*/
-	virtual void OnSnap(int SnappingClient){};
+	virtual void OnSnap(int SnappingClient){}; // TODO:: remove it
+	virtual void OnSnap(int SnappingClient,
+			CNetObj_GameInfo *pGameInfoObj, CNetObj_GameInfoEx *pGameInfoEx, CNetObj_GameData *pGameDataObj,
+			protocol7::CNetObj_GameData *pGameData, protocol7::CNetObj_GameDataTeam *pGameDataTeam, protocol7::CNetObj_GameDataFlag *pGameDataFlag) { OnSnap(SnappingClient); }
 
 	// =================
 	//    GAME EVENTS
