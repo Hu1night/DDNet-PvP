@@ -161,7 +161,7 @@ void CPickup::Snap(int SnappingClient, int OtherMode)
 		}
 	}
 
-	int Size = Server()->IsSixup(SnappingClient) ? 3 * 4 : sizeof(CNetObj_Pickup);
+	int Size = Server()->IsSixup(SnappingClient) ? sizeof(protocol7::CNetObj_Pickup) : sizeof(CNetObj_Pickup);
 	CNetObj_Pickup *pP = static_cast<CNetObj_Pickup *>(Server()->SnapNewItem(NETOBJTYPE_PICKUP, m_ID, Size));
 	if(!pP)
 		return;
