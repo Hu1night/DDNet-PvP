@@ -471,13 +471,13 @@ void CPlayer::Snap(int SnappingClient)
 			IsReadyMode = true;
 	}
 
-	CNetObj_ClientInfo *pClientInfo;
-	CNetObj_PlayerInfo *pPlayerInfo;
-	CNetObj_SpectatorInfo *pSpectatorInfo;
-	protocol7::CNetObj_PlayerInfo *pPlayerInfo7;
-	protocol7::CNetObj_SpectatorInfo *pSpectatorInfo7;
-	CNetObj_DDNetSpectatorInfo *pDDNetSpectatorInfo;
-	CNetObj_DDNetPlayer *pDDNetPlayer;
+	CNetObj_ClientInfo *pClientInfo = nullptr;
+	CNetObj_PlayerInfo *pPlayerInfo = nullptr;
+	CNetObj_SpectatorInfo *pSpectatorInfo = nullptr;
+	protocol7::CNetObj_PlayerInfo *pPlayerInfo7 = nullptr;
+	protocol7::CNetObj_SpectatorInfo *pSpectatorInfo7 = nullptr;
+	CNetObj_DDNetSpectatorInfo *pDDNetSpectatorInfo = nullptr;
+	CNetObj_DDNetPlayer *pDDNetPlayer = nullptr;
 	pClientInfo = static_cast<CNetObj_ClientInfo *>(Server()->SnapNewItem(NETOBJTYPE_CLIENTINFO, MappedID, sizeof(CNetObj_ClientInfo)));
 	if(!pClientInfo)
 		return;

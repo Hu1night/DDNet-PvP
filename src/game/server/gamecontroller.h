@@ -470,7 +470,7 @@ public:
 			return true if the player is allowed to change team
 	*/
 	virtual bool CanChangeTeam(class CPlayer *pPlayer, int JoinTeam) const; // TODO:: remove it
-	virtual bool CanChangeTeam(class CPlayer *pPlayer, int &JoinTeam) { return CanChangeTeam(pPlayer, JoinTeam); }
+	virtual bool CanChangeTeam(class CPlayer *pPlayer, int &JoinTeam) { return CanChangeTeam(pPlayer, (int)JoinTeam); }
 
 	// ==================
 	//    GAME ACTIONS
