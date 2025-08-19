@@ -1136,29 +1136,28 @@ void CGameContext::OnClientEnter(int ClientID)
 		}
 	}
 
-	{
-		int Empty = -1;
-		for(int i = 0; i < MAX_CLIENTS; i++)
-		{
-			if(!Server()->ClientIngame(i))
-			{
-				Empty = i;
-				break;
-			}
-		}
-		CNetMsg_Sv_Chat Msg;
-		Msg.m_Team = 0;
-		Msg.m_ClientID = Empty;
-		Msg.m_pMessage = "Do you know someone who uses a bot? Please report them to the moderators.";
-		m_apPlayers[ClientID]->m_EligibleForFinishCheck = time_get();
-		Server()->SendPackMsg(&Msg, MSGFLAG_VITAL | MSGFLAG_NORECORD, ClientID);
-	}
+	// {
+	// 	int Empty = -1;
+	// 	for(int i = 0; i < MAX_CLIENTS; i++)
+	// 	{
+	// 		if(!Server()->ClientIngame(i))
+	// 		{
+	// 			Empty = i;
+	// 			break;
+	// 		}
+	// 	}
+	// 	CNetMsg_Sv_Chat Msg;
+	// 	Msg.m_Team = 0;
+	// 	Msg.m_ClientID = Empty;
+	// 	Msg.m_pMessage = "Do you know someone who uses a bot? Please report them to the moderators.";
+	// 	m_apPlayers[ClientID]->m_EligibleForFinishCheck = time_get();
+	// 	Server()->SendPackMsg(&Msg, MSGFLAG_VITAL | MSGFLAG_NORECORD, ClientID);
+	// }
+
+	Teams()->OnPlayerConnect(m_apPlayers[ClientID]);
 
 	if(!Server()->ClientPrevIngame(ClientID))
 	{
-		if(g_Config.m_SvWelcome[0] != 0)
-			SendChatTarget(ClientID, g_Config.m_SvWelcome);
-
 		IServer::CClientInfo Info;
 		Server()->GetClientInfo(ClientID, &Info);
 		if(Info.m_GotDDNetVersion)
@@ -1166,6 +1165,9 @@ void CGameContext::OnClientEnter(int ClientID)
 			if(OnClientDDNetVersionKnown(ClientID))
 				return; // kicked
 		}
+
+		if(g_Config.m_SvWelcome[0] != 0)
+			SendChatTarget(ClientID, g_Config.m_SvWelcome);
 
 		if(g_Config.m_SvShowOthersDefault > 0)
 		{
@@ -1183,7 +1185,6 @@ void CGameContext::OnClientEnter(int ClientID)
 
 	Server()->ExpireServerInfo();
 	SendCurrentGameInfo(ClientID, true);
-	Teams()->OnPlayerConnect(m_apPlayers[ClientID]);
 }
 
 bool CGameContext::OnClientDataPersist(int ClientID, void *pData)
