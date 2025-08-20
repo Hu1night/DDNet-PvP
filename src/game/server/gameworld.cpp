@@ -329,6 +329,24 @@ void CGameWorld::ReleaseHooked(int ClientID)
 	}
 }
 
+void CGameWorld::CreateDamageInd(vec2 Pos, float Angle, int Amount, CClientMask Mask)
+{
+	float a = 3 * pi / 2 + Angle;
+	int s = round_to_int((a - pi / 3) * 256.0f);
+	int e = round_to_int((a + pi / 3) * 256.0f);
+	for(int i = 0; i < Amount; i++)
+	{
+		int f = mix(s, e, float(i + 1) / float(Amount + 1));
+		CNetEvent_DamageInd *pEvent = (CNetEvent_DamageInd *)m_Events.Create(NETEVENTTYPE_DAMAGEIND, sizeof(CNetEvent_DamageInd), Mask);
+		if(pEvent)
+		{
+			pEvent->m_X = round_to_int(Pos.x);
+			pEvent->m_Y = round_to_int(Pos.y);
+			pEvent->m_Angle = f;
+		}
+	}
+}
+
 void CGameWorld::CreateDamageIndCircle(vec2 Pos, bool Clockwise, float Angle, int Amount, int Total, float RadiusScale, CClientMask Mask)
 {
 	float s = 3 * pi / 2 + Angle;
@@ -348,42 +366,15 @@ void CGameWorld::CreateDamageIndCircle(vec2 Pos, bool Clockwise, float Angle, in
 	}
 }
 
-void CGameWorld::CreateDamageInd(vec2 Pos, float Angle, int Amount, CClientMask Mask)
-{
-	float a = 3 * pi / 2 + Angle;
-	int s = round_to_int((a - pi / 3) * 256.0f);
-	int e = round_to_int((a + pi / 3) * 256.0f);
-	for(int i = 0; i < Amount; i++)
-	{
-		int f = mix(s, e, float(i + 1) / float(Amount + 1));
-		CNetEvent_DamageInd *pEvent = (CNetEvent_DamageInd *)m_Events.Create(NETEVENTTYPE_DAMAGEIND, sizeof(CNetEvent_DamageInd), Mask);
-		if(pEvent)
-		{
-			pEvent->m_X = round_to_int(Pos.x);
-			pEvent->m_Y = round_to_int(Pos.y);
-			pEvent->m_Angle = f;
-		}
-	}
-}
-
-void CGameWorld::CreateHammerHit(vec2 Pos, CClientMask Mask)
+void CGameWorld::CreateDeath(vec2 Pos, int ClientID, CClientMask Mask)
 {
 	// create the event
-	CNetEvent_HammerHit *pEvent = (CNetEvent_HammerHit *)m_Events.Create(NETEVENTTYPE_HAMMERHIT, sizeof(CNetEvent_HammerHit), Mask);
+	CNetEvent_Death *pEvent = (CNetEvent_Death *)m_Events.Create(NETEVENTTYPE_DEATH, sizeof(CNetEvent_Death), Mask);
 	if(pEvent)
 	{
 		pEvent->m_X = round_to_int(Pos.x);
 		pEvent->m_Y = round_to_int(Pos.y);
-	}
-}
-
-void CGameWorld::CreateExplosionParticle(vec2 Pos, CClientMask Mask)
-{
-	CNetEvent_Explosion *pEvent = (CNetEvent_Explosion *)m_Events.Create(NETEVENTTYPE_EXPLOSION, sizeof(CNetEvent_Explosion), Mask);
-	if(pEvent)
-	{
-		pEvent->m_X = round_to_int(Pos.x);
-		pEvent->m_Y = round_to_int(Pos.y);
+		pEvent->m_ClientID = ClientID;
 	}
 }
 
@@ -424,6 +415,27 @@ void CGameWorld::CreateExplosion(vec2 Pos, int Owner, int Weapon, int WeaponID, 
 	}
 }
 
+void CGameWorld::CreateExplosionParticle(vec2 Pos, CClientMask Mask)
+{
+	CNetEvent_Explosion *pEvent = (CNetEvent_Explosion *)m_Events.Create(NETEVENTTYPE_EXPLOSION, sizeof(CNetEvent_Explosion), Mask);
+	if(pEvent)
+	{
+		pEvent->m_X = round_to_int(Pos.x);
+		pEvent->m_Y = round_to_int(Pos.y);
+	}
+}
+
+void CGameWorld::CreateHammerHit(vec2 Pos, CClientMask Mask)
+{
+	// create the event
+	CNetEvent_HammerHit *pEvent = (CNetEvent_HammerHit *)m_Events.Create(NETEVENTTYPE_HAMMERHIT, sizeof(CNetEvent_HammerHit), Mask);
+	if(pEvent)
+	{
+		pEvent->m_X = round_to_int(Pos.x);
+		pEvent->m_Y = round_to_int(Pos.y);
+	}
+}
+
 void CGameWorld::CreatePlayerSpawn(vec2 Pos, CClientMask Mask)
 {
 	// create the event
@@ -432,18 +444,6 @@ void CGameWorld::CreatePlayerSpawn(vec2 Pos, CClientMask Mask)
 	{
 		ev->m_X = round_to_int(Pos.x);
 		ev->m_Y = round_to_int(Pos.y);
-	}
-}
-
-void CGameWorld::CreateDeath(vec2 Pos, int ClientID, CClientMask Mask)
-{
-	// create the event
-	CNetEvent_Death *pEvent = (CNetEvent_Death *)m_Events.Create(NETEVENTTYPE_DEATH, sizeof(CNetEvent_Death), Mask);
-	if(pEvent)
-	{
-		pEvent->m_X = round_to_int(Pos.x);
-		pEvent->m_Y = round_to_int(Pos.y);
-		pEvent->m_ClientID = ClientID;
 	}
 }
 
