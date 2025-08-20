@@ -425,6 +425,17 @@ void CGameWorld::CreateExplosionParticle(vec2 Pos, CClientMask Mask)
 	}
 }
 
+void CGameWorld::CreateFinish(vec2 Pos, CClientMask Mask)
+{
+	// create the event
+	CNetEvent_Finish *pEvent = (CNetEvent_Finish *)m_Events.Create(NETEVENTTYPE_FINISH, sizeof(CNetEvent_Finish), Mask);
+	if(pEvent)
+	{
+		pEvent->m_X = round_to_int(Pos.x);
+		pEvent->m_Y = round_to_int(Pos.y);
+	}
+}
+
 void CGameWorld::CreateHammerHit(vec2 Pos, CClientMask Mask)
 {
 	// create the event

@@ -192,6 +192,7 @@ public:
 	void CreateDeath(vec2 Pos, int Who, CClientMask Mask = CmaskAll());
 	void CreateExplosion(vec2 Pos, int Owner, int Weapon, int WeaponType, int Damage, bool NoKnockback, CClientMask Mask = CmaskAll());
 	void CreateExplosionParticle(vec2 Pos, CClientMask Mask = CmaskAll());
+	void CreateFinish(vec2 Pos, CClientMask Mask);
 	void CreateHammerHit(vec2 Pos, CClientMask Mask = CmaskAll());
 	void CreatePlayerSpawn(vec2 Pos, CClientMask Mask = CmaskAll());
 	void CreateSound(vec2 Pos, int Sound, CClientMask Mask = CmaskAll());
