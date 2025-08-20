@@ -1,7 +1,7 @@
 # pylint: skip-file
 # See https://github.com/ddnet/ddnet/issues/3507
 
-from datatypes import Enum, Flags, NetBool, NetEvent, NetIntAny, NetIntRange, NetMessage, NetMessageEx, NetObject, NetObjectEx, NetString, NetStringHalfStrict, NetStringStrict, NetTick
+from datatypes import Enum, Flags, NetArray, NetBool, NetEvent, NetEventEx, NetIntAny, NetIntRange, NetMessage, NetMessageEx, NetObject, NetObjectEx, NetString, NetStringHalfStrict, NetStringStrict, NetTick
 
 Emotes = ["NORMAL", "PAIN", "HAPPY", "SURPRISE", "ANGRY", "BLINK"]
 PlayerFlags = ["PLAYING", "IN_MENU", "CHATTING", "SCOREBOARD", "AIM", "SPEC_CAM"]
@@ -356,7 +356,11 @@ Objects = [
 	NetEvent("DamageInd:Common", [
 		NetIntAny("m_Angle"),
 	]),
-	
+
+	NetEventEx("Birthday:Common", "birthday@netevent.ddnet.org", []),
+
+	NetEventEx("Finish:Common", "finish@netevent.ddnet.org", []),
+
 	NetObjectEx("MyOwnEvent", "my-own-event@heinrich5991.de", [
 		NetIntAny("m_Test"),
 	]),
@@ -364,6 +368,27 @@ Objects = [
 	NetObjectEx("SpecChar", "spec-char@netobj.ddnet.tw", [
 		NetIntAny("m_X"),
 		NetIntAny("m_Y"),
+	]),
+
+	# Switch state for a player team.
+	NetObjectEx("SwitchState", "switch-state@netobj.ddnet.tw", [
+		NetIntAny("m_HighestSwitchNumber"),
+		# 256 switches / 32 bits = 8 int32
+		NetArray(NetIntAny("m_aStatus"), 8),
+		# send the endtick of up to 4 timed switchers
+		NetArray(NetIntAny("m_aSwitchNumbers"), 4),
+		NetArray(NetIntAny("m_aEndTicks"), 4),
+	], validate_size=False),
+
+	# Switch info for map items
+	NetObjectEx("EntityEx", "entity-ex@netobj.ddnet.tw", [
+		NetIntAny("m_SwitchNumber"),
+		NetIntAny("m_Layer"),
+		NetIntAny("m_EntityClass"),
+	]),
+
+	NetEventEx("MapSoundWorld:Common", "map-sound-world@netevent.ddnet.org", [
+		NetIntAny("m_SoundId"),
 	]),
 ]
 
@@ -527,6 +552,12 @@ Messages = [
 		NetIntRange("m_Show", 0, 2),
 	]),
 
+	NetMessageEx("Cl_CameraInfo", "camera-info@netmsg.ddnet.org", [
+		NetIntAny("m_Zoom"),
+		NetIntAny("m_Deadzone"),
+		NetIntAny("m_FollowFactor"),
+	]),
+
 	NetMessageEx("Sv_TeamsState", "teamsstate@netmsg.ddnet.tw", []),
 
 	NetMessageEx("Sv_DDRaceTime", "ddrace-time@netmsg.ddnet.tw", [
@@ -538,5 +569,63 @@ Messages = [
 	NetMessageEx("Sv_Record", "weird-record@netmsg.ddnet.tw", [
 		NetIntAny("m_ServerTimeBest"),
 		NetIntAny("m_PlayerTimeBest"),
+	]),
+
+	NetMessageEx("Sv_KillMsgTeam", "killmsgteam@netmsg.ddnet.tw", [
+		NetIntRange("m_Team", 0, 'MAX_CLIENTS-1'),
+		NetIntRange("m_First", -1, 'MAX_CLIENTS-1'),
+	]),
+
+	NetMessageEx("Sv_YourVote", "yourvote@netmsg.ddnet.org", [
+		NetIntRange("m_Voted", -1, 1),
+	]),
+
+	NetMessageEx("Sv_RaceFinish", "racefinish@netmsg.ddnet.org", [
+		NetIntRange("m_ClientId", 0, 'MAX_CLIENTS-1'),
+		NetIntAny("m_Time"),
+		NetIntAny("m_Diff"),
+		NetBool("m_RecordPersonal"),
+		NetBool("m_RecordServer"),
+	]),
+
+	NetMessageEx("Sv_CommandInfo", "commandinfo@netmsg.ddnet.org", [
+			NetStringStrict("m_pName"),
+			NetStringStrict("m_pArgsFormat"),
+			NetStringStrict("m_pHelpText")
+	]),
+
+	NetMessageEx("Sv_CommandInfoRemove", "commandinfo-remove@netmsg.ddnet.org", [
+			NetStringStrict("m_pName")
+	]),
+
+	NetMessageEx("Sv_VoteOptionGroupStart", "sv-vote-option-group-start@netmsg.ddnet.org", []),
+	NetMessageEx("Sv_VoteOptionGroupEnd", "sv-vote-option-group-end@netmsg.ddnet.org", []),
+
+	NetMessageEx("Sv_CommandInfoGroupStart", "sv-commandinfo-group-start@netmsg.ddnet.org", []),
+	NetMessageEx("Sv_CommandInfoGroupEnd", "sv-commandinfo-group-end@netmsg.ddnet.org", []),
+
+	NetMessageEx("Sv_ChangeInfoCooldown", "change-info-cooldown@netmsg.ddnet.org", [
+		NetTick("m_WaitUntil")
+	]),
+
+	NetMessageEx("Sv_MapSoundGlobal", "map-sound-global@netmsg.ddnet.org", [
+		NetIntAny("m_SoundId"),
+	]),
+    
+	NetMessageEx("Sv_PreInput", "preinput@netmsg.ddnet.org", [
+		NetIntAny("m_Direction"),
+		NetIntAny("m_TargetX"),
+		NetIntAny("m_TargetY"),
+
+		NetIntAny("m_Jump"),
+		NetIntAny("m_Fire"),
+		NetIntAny("m_Hook"),
+		
+		NetIntAny("m_WantedWeapon"),
+		NetIntAny("m_NextWeapon"),
+		NetIntAny("m_PrevWeapon"),
+        
+		NetIntRange("m_Owner", 0, 'MAX_CLIENTS-1'),
+		NetTick("m_IntendedTick"),
 	]),
 ]

@@ -293,8 +293,9 @@ class NetMessageEx(NetMessage):
 
 
 class NetVariable:
-	def __init__(self, name):
+	def __init__(self, name, *, default=None):
 		self.name = name
+		self.default = None if default is None else str(default)
 	def emit_declaration(self):
 		return []
 	def emit_validate(self):
@@ -353,5 +354,46 @@ class NetBool(NetIntRange):
 		NetIntRange.__init__(self,name,0,1)
 
 class NetTick(NetIntAny):
-	def __init__(self, name):
-		NetIntAny.__init__(self,name)
+	def __init__(self, name, *, default=None):
+		NetIntAny.__init__(self,name,default=default)
+
+class NetArray(NetVariable):
+	def __init__(self, var, size):
+		NetVariable.__init__(self,var.name,default=var.default)
+		self.base_name = var.name
+		self.var = var
+		self.size = size
+		self.name = self.base_name + f"[{int(self.size)}]"
+	def emit_declaration(self):
+		self.var.name = self.name
+		return self.var.emit_declaration()
+	def emit_uncompressed_unpack_obj(self):
+		lines = []
+		for i in range(self.size):
+			self.var.name = self.base_name + f"[{int(i)}]"
+			lines += self.var.emit_uncompressed_unpack_obj()
+		return lines
+	def emit_validate_obj(self):
+		lines = []
+		for i in range(self.size):
+			self.var.name = self.base_name + f"[{int(i)}]"
+			lines += self.var.emit_validate_obj()
+		return lines
+	def emit_unpack_msg(self):
+		lines = []
+		for i in range(self.size):
+			self.var.name = self.base_name + f"[{int(i)}]"
+			lines += self.var.emit_unpack_msg()
+		return lines
+	def emit_pack(self):
+		lines = []
+		for i in range(self.size):
+			self.var.name = self.base_name + f"[{int(i)}]"
+			lines += self.var.emit_pack()
+		return lines
+	def emit_unpack_msg_check(self):
+		lines = []
+		for i in range(self.size):
+			self.var.name = self.base_name + f"[{int(i)}]"
+			lines += self.var.emit_unpack_msg_check()
+		return lines
