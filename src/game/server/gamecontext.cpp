@@ -1999,6 +1999,9 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				return;
 
 			m_VoteUpdate = true;
+
+			CNetMsg_Sv_YourVote Msg = {pMsg->m_Vote};
+			Server()->SendPackMsg(&Msg, MSGFLAG_VITAL, ClientID);
 		}
 		else if(MsgID == NETMSGTYPE_CL_SETTEAM && !pPlayerWorld->m_Paused)
 		{
@@ -2125,6 +2128,13 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 			}
 			pPlayer->m_LastChangeInfo = Server()->Tick();
 			pPlayer->UpdatePlaytime();
+
+			if(g_Config.m_SvSpamprotection)
+			{
+				CNetMsg_Sv_ChangeInfoCooldown ChangeInfoCooldownMsg;
+				ChangeInfoCooldownMsg.m_WaitUntil = Server()->Tick() + Server()->TickSpeed() * g_Config.m_SvInfoChangeDelay;
+				Server()->SendPackMsg(&ChangeInfoCooldownMsg, MSGFLAG_VITAL | MSGFLAG_NORECORD, ClientID);
+			}
 
 			// set infos
 			if(Server()->WouldClientNameChange(ClientID, pMsg->m_pName) && !ProcessSpamProtection(ClientID))
