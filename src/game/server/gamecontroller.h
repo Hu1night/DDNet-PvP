@@ -803,12 +803,13 @@ public:
 	virtual void OnKill(class CPlayer *pPlayer);
 
 	/*
-		Function: OnKill
+		Function: OnSnap
 			Called during CPlayer::Snap() in case you need to fake some snapshots
 			Usually this is not needed
 
 		Arguments:
 			pPlayer - The CPlayer
+			SnappingClient - The player's CId
 	*/
 	virtual void OnPlayerSnap(class CPlayer *pPlayer, int SnappingClient,
 			CNetObj_ClientInfo *pClientInfo, CNetObj_PlayerInfo *pPlayerInfo, CNetObj_SpectatorInfo *pSpectatorInfo, // 0.6

@@ -579,11 +579,18 @@ void CPlayer::Snap(int SnappingClient)
 		}
 	}
 
-	pDDNetSpectatorInfo = static_cast<CNetObj_DDNetSpectatorInfo *>(Server()->SnapNewItem(NETOBJTYPE_DDNETSPECTATORINFO, m_ClientID, sizeof(CNetObj_DDNetSpectatorInfo)));
-	if(!pDDNetSpectatorInfo)
-		return;
+	if(m_ClientID == SnappingClient)
+	{
+		pDDNetSpectatorInfo = static_cast<CNetObj_DDNetSpectatorInfo *>(Server()->SnapNewItem(NETOBJTYPE_DDNETSPECTATORINFO, m_ClientID, sizeof(CNetObj_DDNetSpectatorInfo)));
+		if(!pDDNetSpectatorInfo)
+			return;
 
-	pDDNetSpectatorInfo->m_SpectatorCount = GameServer()->m_SpectatorMask[m_ClientID].count();
+		pDDNetSpectatorInfo->m_HasCameraInfo = false;
+		pDDNetSpectatorInfo->m_Zoom = 1.0f * 1000.0f;
+		pDDNetSpectatorInfo->m_Deadzone = 0.0f;
+		pDDNetSpectatorInfo->m_FollowFactor = 0.0f;
+		pDDNetSpectatorInfo->m_SpectatorCount = GameServer()->m_SpectatorMask[m_ClientID].count();
+	}
 
 	pDDNetPlayer = static_cast<CNetObj_DDNetPlayer *>(Server()->SnapNewItem(NETOBJTYPE_DDNETPLAYER, m_ClientID, sizeof(CNetObj_DDNetPlayer)));
 	if(!pDDNetPlayer)
