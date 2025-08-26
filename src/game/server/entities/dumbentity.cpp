@@ -75,7 +75,7 @@ void CDumbEntity::DoSnap(int SnapID, int SnappingClient)
 
 	if(Type <= TYPE_POWERUP_NINJA)
 	{
-		int Size = Server()->IsSixup(SnappingClient) ? 3 * 4 : sizeof(CNetObj_Pickup);
+		int Size = Server()->IsSixup(SnappingClient) ? sizeof(protocol7::CNetObj_Pickup) : sizeof(CNetObj_Pickup);
 		CNetObj_Pickup *pP = static_cast<CNetObj_Pickup *>(Server()->SnapNewItem(NETOBJTYPE_PICKUP, SnapID, Size));
 		if(!pP)
 			return;

@@ -464,7 +464,7 @@ void CTextEntity::SnapPickup(int SnappingClient)
 
 	float XOffset = 0;
 	int DotIndex = 0;
-	int Size = Server()->IsSixup(SnappingClient) ? 3 * 4 : sizeof(CNetObj_Pickup);
+	int Size = Server()->IsSixup(SnappingClient) ? sizeof(protocol7::CNetObj_Pickup) : sizeof(CNetObj_Pickup);
 
 	for(int c = 0; c < m_TextLen; c++)
 	{
