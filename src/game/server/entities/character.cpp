@@ -777,7 +777,7 @@ bool CCharacter::TakeDamage(vec2 Force, int Dmg, int From, int Weapon, int Weapo
 }
 
 //TODO: Move the emote stuff to a function
-void CCharacter::SnapCharacter(int SnappingClient, int MappedID)
+void CCharacter::SnapCharacter(int SnappingClient, int ClientID)
 {
 	CCharacterCore *pCore;
 
@@ -894,7 +894,7 @@ void CCharacter::SnapCharacter(int SnappingClient, int MappedID)
 
 	if(!Server()->IsSixup(SnappingClient))
 	{
-		CNetObj_Character *pCharacter = static_cast<CNetObj_Character *>(Server()->SnapNewItem(NETOBJTYPE_CHARACTER, MappedID, sizeof(CNetObj_Character)));
+		CNetObj_Character *pCharacter = static_cast<CNetObj_Character *>(Server()->SnapNewItem(NETOBJTYPE_CHARACTER, ClientID, sizeof(CNetObj_Character)));
 		if(!pCharacter)
 			return;
 
@@ -902,12 +902,6 @@ void CCharacter::SnapCharacter(int SnappingClient, int MappedID)
 
 		pCharacter->m_Tick = Tick;
 		pCharacter->m_Emote = Emote;
-
-		if(pCharacter->m_HookedPlayer != -1)
-		{
-			if(!Server()->Translate(pCharacter->m_HookedPlayer, SnappingClient))
-				pCharacter->m_HookedPlayer = -1;
-		}
 
 		// HACK: try disable weapon antiping when the weapon is non-standard or is using quick switch
 		if(m_WeaponTimerType == WEAPON_TIMER_INDIVIDUAL && !IsFrozen() && (!pCurrentWeapon || pCurrentWeapon->GetType() != WEAPON_NINJA))
@@ -948,7 +942,7 @@ void CCharacter::SnapCharacter(int SnappingClient, int MappedID)
 	}
 	else
 	{
-		protocol7::CNetObj_Character *pCharacter = static_cast<protocol7::CNetObj_Character *>(Server()->SnapNewItem(NETOBJTYPE_CHARACTER, MappedID, sizeof(protocol7::CNetObj_Character)));
+		protocol7::CNetObj_Character *pCharacter = static_cast<protocol7::CNetObj_Character *>(Server()->SnapNewItem(NETOBJTYPE_CHARACTER, ClientID, sizeof(protocol7::CNetObj_Character)));
 		if(!pCharacter)
 			return;
 
@@ -979,17 +973,12 @@ bool CCharacter::NetworkClipped(int SnappingClient)
 
 void CCharacter::Snap(int SnappingClient, int OtherMode)
 {
-	int MappedID = m_pPlayer->GetCID();
-
-	if(SnappingClient > -1 && !Server()->Translate(MappedID, SnappingClient))
-		return;
-
 	if(m_Disabled)
 		return;
 
-	SnapCharacter(SnappingClient, MappedID);
+	SnapCharacter(SnappingClient, m_pPlayer->GetCID());
 
-	CNetObj_DDNetCharacter *pDDNetCharacter = static_cast<CNetObj_DDNetCharacter *>(Server()->SnapNewItem(NETOBJTYPE_DDNETCHARACTER, MappedID, sizeof(CNetObj_DDNetCharacter)));
+	CNetObj_DDNetCharacter *pDDNetCharacter = static_cast<CNetObj_DDNetCharacter *>(Server()->SnapNewItem(NETOBJTYPE_DDNETCHARACTER, m_pPlayer->GetCID(), sizeof(CNetObj_DDNetCharacter)));
 	if(!pDDNetCharacter)
 		return;
 

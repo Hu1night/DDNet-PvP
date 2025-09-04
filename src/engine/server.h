@@ -105,20 +105,13 @@ public:
 
 	int SendPackMsgTranslate(CNetMsg_Sv_Emoticon *pMsg, int Flags, int ClientID)
 	{
-		return Translate(pMsg->m_ClientID, ClientID) && SendPackMsgOne(pMsg, Flags, ClientID);
+		return SendPackMsgOne(pMsg, Flags, ClientID);
 	}
 
 	char msgbuf[1000];
 
 	int SendPackMsgTranslate(CNetMsg_Sv_Chat *pMsg, int Flags, int ClientID)
 	{
-		if(pMsg->m_ClientID >= 0 && !Translate(pMsg->m_ClientID, ClientID))
-		{
-			str_format(msgbuf, sizeof(msgbuf), "%s: %s", ClientName(pMsg->m_ClientID), pMsg->m_pMessage);
-			pMsg->m_pMessage = msgbuf;
-			pMsg->m_ClientID = VANILLA_MAX_CLIENTS - 1;
-		}
-
 		if(IsSixup(ClientID))
 		{
 			protocol7::CNetMsg_Sv_Chat Msg7;
@@ -134,10 +127,6 @@ public:
 
 	int SendPackMsgTranslate(CNetMsg_Sv_KillMsg *pMsg, int Flags, int ClientID)
 	{
-		if(!Translate(pMsg->m_Victim, ClientID))
-			return 0;
-		if(!Translate(pMsg->m_Killer, ClientID))
-			pMsg->m_Killer = pMsg->m_Victim;
 		return SendPackMsgOne(pMsg, Flags, ClientID);
 	}
 
@@ -150,47 +139,6 @@ public:
 		if(pMsg->Pack(&Packer))
 			return -1;
 		return SendMsg(&Packer, Flags, ClientID);
-	}
-
-	bool Translate(int &Target, int Client)
-	{
-		return true;
-		CClientInfo Info; 
-		GetClientInfo(Client, &Info);
-		if(IsSixup(Client) || Info.m_DDNetVersion >= VERSION_DDNET_128_PLAYERS)
-			return true;
-		int MaxPlayer = VANILLA_MAX_CLIENTS;
-		if(Info.m_DDNetVersion >= VERSION_DDNET_OLD)
-			MaxPlayer = SERVER_MAX_CLIENTS;
-		int *pMap = GetIdMap(Client);
-		bool Found = false;
-		for(int i = 0; i < MaxPlayer; i++)
-		{
-			if(Target == pMap[i])
-			{
-				Target = i;
-				Found = true;
-				break;
-			}
-		}
-		return Found;
-	}
-
-	bool ReverseTranslate(int &Target, int Client)
-	{
-		CClientInfo Info; 
-		GetClientInfo(Client, &Info);
-		if(IsSixup(Client) || Info.m_DDNetVersion >= VERSION_DDNET_128_PLAYERS)
-			return true;
-		int MaxPlayer = VANILLA_MAX_CLIENTS;
-		if(Info.m_DDNetVersion >= VERSION_DDNET_OLD)
-			MaxPlayer = SERVER_MAX_CLIENTS;
-		Target = clamp(Target, 0, MaxPlayer - 1);
-		int *pMap = GetIdMap(Client);
-		if(pMap[Target] == -1)
-			return false;
-		Target = pMap[Target];
-		return true;
 	}
 
 	virtual void GetMapInfo(char *pMapName, int MapNameSize, int *pMapSize, SHA256_DIGEST *pSha256, int *pMapCrc) = 0;
@@ -230,8 +178,6 @@ public:
 	virtual bool IsRecording(int ClientID) = 0;
 
 	virtual void GetClientAddr(int ClientID, NETADDR *pAddr) const = 0;
-
-	virtual int *GetIdMap(int ClientID) = 0;
 
 	virtual bool DnsblWhite(int ClientID) = 0;
 	virtual bool DnsblPending(int ClientID) = 0;

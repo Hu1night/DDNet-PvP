@@ -3744,11 +3744,6 @@ const char *CServer::GetAnnouncementLine(char const *pFileName)
 	return Lines[m_AnnouncementLastLine];
 }
 
-int *CServer::GetIdMap(int ClientID)
-{
-	return m_aIdMap + SERVER_MAX_CLIENTS * ClientID;
-}
-
 bool CServer::SetTimedOut(int ClientID, int OrigID)
 {
 	if(!m_NetServer.SetTimedOut(ClientID, OrigID))

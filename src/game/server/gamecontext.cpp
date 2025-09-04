@@ -412,10 +412,8 @@ void CGameContext::SendCurrentGameInfo(int ClientID, bool IsJoin)
 	CPlayer *pPlayer = m_apPlayers[ClientID];
 
 	// new info for others
-	int TransCID = ClientID;
-	Server()->Translate(TransCID, ClientID);
 	protocol7::CNetMsg_Sv_ClientInfo NewClientInfoMsg;
-	NewClientInfoMsg.m_ClientID = TransCID;
+	NewClientInfoMsg.m_ClientID = ClientID;
 	NewClientInfoMsg.m_Local = 0;
 	NewClientInfoMsg.m_Team = pPlayer->GetTeam();
 	NewClientInfoMsg.m_pName = Server()->ClientName(ClientID);
@@ -690,7 +688,6 @@ void CGameContext::SendTuningParams(int ClientID, int Zone)
 void CGameContext::OnTick()
 {
 	Teams()->OnTick();
-	UpdatePlayerMaps(); // MYTODO: check if this need to be ticked before controller
 	DoActivityCheck();
 
 	for(int i = 0; i < MAX_CLIENTS; i++)
@@ -1851,10 +1848,6 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 					SendChatTarget(ClientID, "You can't kick yourself");
 					return;
 				}
-				if(!Server()->ReverseTranslate(KickID, ClientID))
-				{
-					return;
-				}
 				int KickedAuthed = Server()->GetAuthedState(KickID);
 				if(KickedAuthed > Authed)
 				{
@@ -1912,10 +1905,6 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				if(SpectateID == ClientID)
 				{
 					SendChatTarget(ClientID, "You can't move yourself");
-					return;
-				}
-				if(!Server()->ReverseTranslate(SpectateID, ClientID))
-				{
 					return;
 				}
 
@@ -2094,10 +2083,6 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 			CNetMsg_Cl_SetSpectatorMode *pMsg = (CNetMsg_Cl_SetSpectatorMode *)pRawMsg;
 
 			pMsg->m_SpectatorID = clamp(pMsg->m_SpectatorID, (int)SPEC_FOLLOW, MAX_CLIENTS - 1);
-
-			if(pMsg->m_SpectatorID >= 0)
-				if(!Server()->ReverseTranslate(pMsg->m_SpectatorID, ClientID))
-					return;
 
 			if((g_Config.m_SvSpamprotection && pPlayer->m_LastSetSpectatorMode && pPlayer->m_LastSetSpectatorMode + Server()->TickSpeed() / 4 > Server()->Tick()))
 				return;
@@ -3792,99 +3777,6 @@ bool CGameContext::RateLimitPlayerMapVote(int ClientID)
 		return true;
 	}
 	return false;
-}
-
-bool distCompare(std::pair<float, int> a, std::pair<float, int> b)
-{
-	return (a.first < b.first);
-}
-
-void CGameContext::UpdatePlayerMaps()
-{
-	if(Server()->Tick() % g_Config.m_SvMapUpdateRate != 0)
-		return;
-
-	std::pair<float, int> Dist[MAX_CLIENTS];
-	for(int i = 0; i < MAX_CLIENTS; i++)
-	{
-		if(!Server()->ClientIngame(i))
-			continue;
-		int *pMap = Server()->GetIdMap(i);
-
-		// compute distances
-		for(int j = 0; j < MAX_CLIENTS; j++)
-		{
-			Dist[j].second = j;
-			if(!Server()->ClientIngame(j) || !m_apPlayers[j])
-			{
-				Dist[j].first = 1e10;
-				continue;
-			}
-			CCharacter *ch = m_apPlayers[j]->GetCharacter();
-			if(!ch)
-			{
-				Dist[j].first = 1e9;
-				continue;
-			}
-			// copypasted chunk from character.cpp Snap() follows
-			CCharacter *SnapChar = GetPlayerChar(i);
-			if(SnapChar && !SnapChar->m_Super &&
-				!m_apPlayers[i]->IsPaused() && m_apPlayers[i]->GetTeam() != -1 &&
-				!ch->CanCollide(i) &&
-				(!m_apPlayers[i] ||
-					m_apPlayers[i]->GetClientVersion() == VERSION_VANILLA ||
-					(m_apPlayers[i]->GetClientVersion() >= VERSION_DDRACE &&
-						(m_apPlayers[i]->ShowOthersMode() == CPlayer::SHOWOTHERS_OFF))))
-				Dist[j].first = 1e8;
-			else
-				Dist[j].first = 0;
-
-			Dist[j].first += distance(m_apPlayers[i]->m_ViewPos, m_apPlayers[j]->GetCharacter()->m_Pos);
-		}
-
-		// always send the player himself
-		Dist[i].first = 0;
-
-		// compute reverse map
-		int rMap[MAX_CLIENTS];
-		for(int &j : rMap)
-		{
-			j = -1;
-		}
-		for(int j = 0; j < SERVER_MAX_CLIENTS; j++)
-		{
-			if(pMap[j] == -1)
-				continue;
-			if(Dist[pMap[j]].first > 5e9)
-				pMap[j] = -1;
-			else
-				rMap[pMap[j]] = j;
-		}
-
-		std::nth_element(&Dist[0], &Dist[SERVER_MAX_CLIENTS - 1], &Dist[MAX_CLIENTS], distCompare);
-
-		int Mapc = 0;
-		int Demand = 0;
-		for(int j = 0; j < SERVER_MAX_CLIENTS - 1; j++)
-		{
-			int k = Dist[j].second;
-			if(rMap[k] != -1 || Dist[j].first > 5e9)
-				continue;
-			while(Mapc < SERVER_MAX_CLIENTS && pMap[Mapc] != -1)
-				Mapc++;
-			if(Mapc < SERVER_MAX_CLIENTS - 1)
-				pMap[Mapc] = k;
-			else
-				Demand++;
-		}
-		for(int j = MAX_CLIENTS - 1; j > SERVER_MAX_CLIENTS - 2; j--)
-		{
-			int k = Dist[j].second;
-			if(rMap[k] != -1 && Demand-- > 0)
-				pMap[rMap[k]] = -1;
-		}
-		pMap[SERVER_MAX_CLIENTS - 1] = -1; // player with empty name to say chat msgs
-	}
 }
 
 void CGameContext::DoActivityCheck()

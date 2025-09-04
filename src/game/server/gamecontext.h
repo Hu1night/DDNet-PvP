@@ -283,8 +283,6 @@ public:
 	// Checks if player can vote and notify them about the reason
 	bool RateLimitPlayerVote(int ClientID);
 	bool RateLimitPlayerMapVote(int ClientID);
-
-	void UpdatePlayerMaps();
 	void DoActivityCheck();
 
 	void SendClientInfo(int ClientID);

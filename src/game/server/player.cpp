@@ -45,13 +45,6 @@ void CPlayer::Reset()
 
 	m_LastFire = false;
 
-	int *pIdMap = Server()->GetIdMap(m_ClientID);
-	for(int i = 1; i < SERVER_MAX_CLIENTS; i++)
-	{
-		pIdMap[i] = -1;
-	}
-	pIdMap[0] = m_ClientID;
-
 	// DDRace
 
 	m_LastCommandPos = 0;
@@ -449,10 +442,6 @@ void CPlayer::Snap(int SnappingClient)
 		if(!Server()->ClientIngame(m_ClientID))
 			return;
 
-	int MappedID = m_ClientID;
-	if(SnappingClient > -1 && !Server()->Translate(MappedID, SnappingClient))
-		return;
-
 	CPlayer *pSnappingPlayer = GameServer()->m_apPlayers[SnappingClient];
 	int SnapAs = SnappingClient;
 	if(pSnappingPlayer->IsSpectating() && pSnappingPlayer->GetSpectatorID() > SPEC_FREEVIEW)
@@ -478,7 +467,7 @@ void CPlayer::Snap(int SnappingClient)
 	protocol7::CNetObj_SpectatorInfo *pSpectatorInfo7 = nullptr;
 	CNetObj_DDNetSpectatorInfo *pDDNetSpectatorInfo = nullptr;
 	CNetObj_DDNetPlayer *pDDNetPlayer = nullptr;
-	pClientInfo = static_cast<CNetObj_ClientInfo *>(Server()->SnapNewItem(NETOBJTYPE_CLIENTINFO, MappedID, sizeof(CNetObj_ClientInfo)));
+	pClientInfo = static_cast<CNetObj_ClientInfo *>(Server()->SnapNewItem(NETOBJTYPE_CLIENTINFO, m_ClientID, sizeof(CNetObj_ClientInfo)));
 	if(!pClientInfo)
 		return;
 
@@ -504,13 +493,13 @@ void CPlayer::Snap(int SnappingClient)
 	int Score = m_Score;
 	if(SnappingClient < 0 || !Server()->IsSixup(SnappingClient))
 	{
-		pPlayerInfo = static_cast<CNetObj_PlayerInfo *>(Server()->SnapNewItem(NETOBJTYPE_PLAYERINFO, MappedID, sizeof(CNetObj_PlayerInfo)));
+		pPlayerInfo = static_cast<CNetObj_PlayerInfo *>(Server()->SnapNewItem(NETOBJTYPE_PLAYERINFO, m_ClientID, sizeof(CNetObj_PlayerInfo)));
 		if(!pPlayerInfo)
 			return;
 
 		pPlayerInfo->m_Latency = Latency;
 		pPlayerInfo->m_Score = Score;
-		pPlayerInfo->m_ClientID = MappedID;
+		pPlayerInfo->m_ClientID = m_ClientID;
 		pPlayerInfo->m_Local = (int)(m_ClientID == SnappingClient && (m_Paused != true || SnappingClientVersion >= VERSION_DDNET_OLD));
 		pPlayerInfo->m_Team = m_Team;
 
@@ -528,7 +517,7 @@ void CPlayer::Snap(int SnappingClient)
 	}
 	else
 	{
-		pPlayerInfo7 = static_cast<protocol7::CNetObj_PlayerInfo *>(Server()->SnapNewItem(NETOBJTYPE_PLAYERINFO, MappedID, sizeof(protocol7::CNetObj_PlayerInfo)));
+		pPlayerInfo7 = static_cast<protocol7::CNetObj_PlayerInfo *>(Server()->SnapNewItem(NETOBJTYPE_PLAYERINFO, m_ClientID, sizeof(protocol7::CNetObj_PlayerInfo)));
 		if(!pPlayerInfo7)
 			return;
 
@@ -559,14 +548,14 @@ void CPlayer::Snap(int SnappingClient)
 
 			if((m_SpecMode == FLAGRED || m_SpecMode == FLAGBLUE) && m_pSpecFlag)
 			{
-				pSpectatorInfo->m_SpectatorID = MappedID;
+				pSpectatorInfo->m_SpectatorID = m_ClientID;
 				pSpectatorInfo->m_X = round_to_int(m_pSpecFlag->m_Pos.x);
 				pSpectatorInfo->m_Y = round_to_int(m_pSpecFlag->m_Pos.y);
 			}
 			else if(IsEndRound)
 			{
 				// special case for round end (to show round end broadcast instantly)
-				pSpectatorInfo->m_SpectatorID = MappedID;
+				pSpectatorInfo->m_SpectatorID = m_ClientID;
 				pSpectatorInfo->m_X = m_ViewPos.x;
 				pSpectatorInfo->m_Y = m_ViewPos.y;
 			}
@@ -590,13 +579,13 @@ void CPlayer::Snap(int SnappingClient)
 		}
 	}
 
-	pDDNetSpectatorInfo = static_cast<CNetObj_DDNetSpectatorInfo *>(Server()->SnapNewItem(NETOBJTYPE_DDNETSPECTATORINFO, MappedID, sizeof(CNetObj_DDNetSpectatorInfo)));
+	pDDNetSpectatorInfo = static_cast<CNetObj_DDNetSpectatorInfo *>(Server()->SnapNewItem(NETOBJTYPE_DDNETSPECTATORINFO, m_ClientID, sizeof(CNetObj_DDNetSpectatorInfo)));
 	if(!pDDNetSpectatorInfo)
 		return;
 
 	pDDNetSpectatorInfo->m_SpectatorCount = GameServer()->m_SpectatorMask[m_ClientID].count();
 
-	pDDNetPlayer = static_cast<CNetObj_DDNetPlayer *>(Server()->SnapNewItem(NETOBJTYPE_DDNETPLAYER, MappedID, sizeof(CNetObj_DDNetPlayer)));
+	pDDNetPlayer = static_cast<CNetObj_DDNetPlayer *>(Server()->SnapNewItem(NETOBJTYPE_DDNETPLAYER, m_ClientID, sizeof(CNetObj_DDNetPlayer)));
 	if(!pDDNetPlayer)
 		return;
 
@@ -623,7 +612,7 @@ void CPlayer::Snap(int SnappingClient)
 
 	if(ShowSpec)
 	{
-		CNetObj_SpecChar *pSpecChar = static_cast<CNetObj_SpecChar *>(Server()->SnapNewItem(NETOBJTYPE_SPECCHAR, MappedID, sizeof(CNetObj_SpecChar)));
+		CNetObj_SpecChar *pSpecChar = static_cast<CNetObj_SpecChar *>(Server()->SnapNewItem(NETOBJTYPE_SPECCHAR, m_ClientID, sizeof(CNetObj_SpecChar)));
 		if(!pSpecChar)
 			return;
 
