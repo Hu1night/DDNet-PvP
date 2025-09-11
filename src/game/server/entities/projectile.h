@@ -37,10 +37,7 @@ public:
 	virtual void Destroy() override;
 
 private:
-	vec2 m_Direction;
-	int m_TotalLifeSpan;
 	int m_Owner;
-	int m_StartTick;
 	int m_WeaponID;
 	FProjectileImpactCallback m_Callback;
 	int m_ID;
@@ -56,6 +53,9 @@ private:
 	SEntityCustomData m_CustomData;
 
 public:
+	vec2 m_Direction;
+	int m_TotalLifeSpan;
+	int m_StartTick;
 	int m_Type;
 	float m_Radius;
 	int m_LifeSpan;
