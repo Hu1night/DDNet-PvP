@@ -40,6 +40,8 @@ CProjectile::CProjectile(
 	m_Hit = 0;
 	m_WeaponID = WeaponID;
 	m_ID = Server()->SnapNewID();
+	m_CustomData = CustomData;
+
 	if(m_Owner >= 0)
 	{
 		CCharacter *pOwnerChar = GameServer()->GetPlayerChar(m_Owner);
