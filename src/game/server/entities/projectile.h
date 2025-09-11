@@ -53,6 +53,7 @@ private:
 	SEntityCustomData m_CustomData;
 
 public:
+	vec2 m_ActualPos;
 	vec2 m_Direction;
 	int m_TotalLifeSpan;
 	int m_StartTick;

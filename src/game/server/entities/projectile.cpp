@@ -27,6 +27,7 @@ CProjectile::CProjectile(
 	CEntity(pGameWorld, CGameWorld::ENTTYPE_PROJECTILE)
 {
 	m_Type = WeaponType;
+	m_ActualPos = Pos;
 	m_Pos = Pos;
 	m_Direction = Dir;
 	m_LifeSpan = Span;
@@ -131,10 +132,10 @@ void CProjectile::Tick()
 	float Pt = (Server()->Tick() - m_StartTick - 1) / (float)Server()->TickSpeed();
 	float Ct = (Server()->Tick() - m_StartTick) / (float)Server()->TickSpeed();
 	vec2 PrevPos = GetPos(Pt);
-	vec2 CurPos = GetPos(Ct);
+	m_ActualPos = GetPos(Ct);
 	vec2 ColPos;
 	vec2 NewPos;
-	int Collide = GameServer()->Collision()->IntersectLine(PrevPos, CurPos, &ColPos, &NewPos);
+	int Collide = GameServer()->Collision()->IntersectLine(PrevPos, m_ActualPos, &ColPos, &NewPos);
 	CCharacter *pOwnerChar = nullptr;
 	CPlayer *pOwnerPlayer = nullptr;
 
@@ -205,7 +206,7 @@ void CProjectile::Tick()
 			}
 		}
 
-		if(Collide || GameLayerClipped(CurPos))
+		if(Collide || GameLayerClipped(m_ActualPos))
 		{
 			if(m_Callback(this, ColPos, nullptr, false))
 			{
@@ -249,7 +250,7 @@ void CProjectile::Tick()
 	}
 
 	// Projectile Tele
-	int x = GameServer()->Collision()->GetIndex(PrevPos, CurPos);
+	int x = GameServer()->Collision()->GetIndex(PrevPos, m_ActualPos);
 	int z;
 	if(g_Config.m_SvOldTeleportWeapons)
 		z = GameServer()->Collision()->IsTeleport(x);
