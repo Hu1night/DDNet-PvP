@@ -701,6 +701,21 @@ public:
 	virtual int OnCharacterDeath(class CCharacter *pVictim, class CPlayer *pKiller, int Weapon) { return DEATH_NORMAL; };
 
 	/*
+		Function: OnAttackCollide
+			Called when a CCharacter's attack collide something
+
+		Arguments:
+			Pos - The position of collide
+			From - Attacker's ClientID
+			WeaponType - Weapon's appearence
+			WeaponID - Weapon class identifier
+
+		Return:
+			A flag (DEATH_*) indicating the behaviour of character's death
+	*/
+	virtual bool OnCharacterHandleFire(class CWeapon *pWeapon, vec2 &Direction) { return true; };
+
+	/*
 		Function: OnCharacterSpawn
 			Called when a CCharacter spawns into the game world.
 

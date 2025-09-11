@@ -59,6 +59,8 @@ void CWeapon::TickPaused()
 
 void CWeapon::HandleFire(vec2 Direction)
 {
+	bool CanFire = Character()->Controller()->OnCharacterHandleFire(this, Direction);
+
 	if(m_ReloadTimer > 0)
 		return;
 
@@ -86,7 +88,9 @@ void CWeapon::HandleFire(vec2 Direction)
 		return;
 	}
 
-	Fire(Direction);
+	if(CanFire)
+		Fire(Direction);
+
 	if(m_AmmoRegenDelay)
 		m_AmmoRegenStart = Server()->Tick() + (m_FireDelay + m_AmmoRegenDelay) * Server()->TickSpeed() / 1000;
 
