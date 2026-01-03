@@ -278,6 +278,8 @@ public:
 	CWeapon *GetPowerupWeapon() { return m_pPowerupWeapon; }
 	void Protect(float Seconds, bool CancelOnFire = false);
 	bool IsProtected();
+	CNetObj_PlayerInput *GetInput() { return &m_Input; };
+	CNetObj_PlayerInput *GetPrevInput() { return &m_PrevInput; };
 
 	int GetLastAction() const
 	{
