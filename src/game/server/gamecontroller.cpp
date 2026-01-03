@@ -1110,9 +1110,9 @@ void IGameController::OnInternalPlayerJoin(CPlayer *pPlayer, int Type)
 		if(Type == INSTANCE_CONNECTION_SERVER)
 		{
 			if(g_Config.m_SvRoom == 0)
-				str_format(aBuf, sizeof(aBuf), "'%s' entered and joined the %s", Server()->ClientName(ClientID), GetTeamName(pPlayer->GetTeam()));
+				str_format(aBuf, sizeof(aBuf), "'%s' entered and joined the %s (client ver %d)", Server()->ClientName(ClientID), GetTeamName(pPlayer->GetTeam()), GameServer()->GetClientVersion(ClientID));
 			else
-				str_format(aBuf, sizeof(aBuf), "'%s' entered and joined the %s in %s room %d", Server()->ClientName(ClientID), GetTeamName(pPlayer->GetTeam()), m_pGameType, GameWorld()->Team());
+				str_format(aBuf, sizeof(aBuf), "'%s' entered and joined the %s in %s room %d (client ver %d)", Server()->ClientName(ClientID), GetTeamName(pPlayer->GetTeam()), m_pGameType, GameWorld()->Team(), GameServer()->GetClientVersion(ClientID));
 
 			GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf, -1);
 		}

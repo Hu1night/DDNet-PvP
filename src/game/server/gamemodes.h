@@ -11,6 +11,8 @@
 #include "gamemodes/instagib.h"
 #include "gamemodes/fng.h"
 
+#include "gamemodes/huntern.h"
+
 #endif
 
 #ifdef REGISTER_GAME_TYPE
@@ -27,4 +29,5 @@ REGISTER_GAME_TYPE(zcatch, CGameControllerZCatch)
 REGISTER_GAME_TYPE(solofng, CGameControllerSoloFNG)
 REGISTER_GAME_TYPE(fng, CGameControllerFNG)
 REGISTER_GAME_TYPE(catchfng, CGameControllerCatchFNG)
+REGISTER_GAME_TYPE(huntern, CGameControllerHunterN)
 #endif
