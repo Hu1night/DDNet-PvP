@@ -17,13 +17,6 @@ CGameControllerHunterN::CGameControllerHunterN() :
 	INSTANCE_CONFIG_INT(&m_HunterRatio, "htn_hunt_ratio", 4, 2, MAX_CLIENTS, CFGFLAG_CHAT | CFGFLAG_INSTANCE, "几个玩家里选取一个猎人 (整数, 默认4, 限制2~64)");
 	INSTANCE_CONFIG_INT(&m_Wincheckdeley, "htn_wincheck_deley", 200, 0, 0x7FFFFFFF, CFGFLAG_CHAT | CFGFLAG_INSTANCE, "终局判断延时毫秒 (整数, 默认200, 限制0~2147483647)");
 
-	InstanceConsole()->Register("htn_maprotations", "", CFGFLAG_CHAT | CFGFLAG_INSTANCE, ConMapRotations, this, "显示地图循环列表");
-	InstanceConsole()->Register("htn_maprotations_add", "?s[maps] ?s[maps] ?s[maps] ?s[maps] ?s[maps] ?s[maps] ?s[maps] ?s[maps] ?s[maps] ?s[maps] ?s[maps] ?s[maps] ?s[maps] ?s[maps] ?s[maps] ?s[maps] ?s[maps] ?s[maps] ?s[maps] ?s[maps] ?s[maps] ?s[maps] ?s[maps] ?s[maps]", CFGFLAG_CHAT | CFGFLAG_INSTANCE, ConMapRotationsAdd, this, "在地图循环列表添加地图");
-	InstanceConsole()->Register("htn_maprotations_remove", "?i[map-id]", CFGFLAG_CHAT | CFGFLAG_INSTANCE, ConMapRotationsRemove, this, "在地图循环列表清除地图");
-	InstanceConsole()->Register("htn_mapmask", "", CFGFLAG_CHAT | CFGFLAG_INSTANCE, ConMapMask, this, "显示所有地图的标签");
-	InstanceConsole()->Register("htn_mapmask_add", "s[mapname] i[mapmask]", CFGFLAG_CHAT | CFGFLAG_INSTANCE, ConMapMaskAdd, this, "给地图添加标签");
-	InstanceConsole()->Register("htn_mapmask_remove", "?s[mapname]", CFGFLAG_CHAT | CFGFLAG_INSTANCE, ConMapMaskRemove, this, "清除地图的标签");
-	InstanceConsole()->Register("htn_mapmask_addvote", "i[mapmask] s[desc_prefix]", CFGFLAG_CHAT | CFGFLAG_INSTANCE, ConMapMaskAddVote, this, "根据地图标签添加地图切换投票");
 	InstanceConsole()->Register("htn_setrng", "?i[rngid]", CFGFLAG_CHAT | CFGFLAG_INSTANCE, ConSetRng, this, "设置玩家抽取随机器");
 	InstanceConsole()->Register("htn_setclass", "i[class-id] ?i[CID] ?i[team-id]", CFGFLAG_CHAT | CFGFLAG_INSTANCE, ConSetClass, this, "给玩家设置职业");
 	InstanceConsole()->Register("htn_giveweapon", "i[weapon-id] i[slot] ?i[CID] ?i[ammo-num] ?i[is-powerup]", CFGFLAG_CHAT | CFGFLAG_INSTANCE, ConGiveWeapon, this, "给玩家武器");
@@ -216,11 +209,11 @@ int CGameControllerHunterN::OnCharacterDeath(class CCharacter *pVictim, class CP
 	{
 		if(pKiller != pVictim->GetPlayer())
 		{
-			m_aHiddenScore[KillerCID] += // add score on kill
-					m_aKillScoreData[m_aClass[pVictim->GetPlayer()->GetCID()]] // Class
-					[m_aTeam[pVictim->GetPlayer()->GetCID()] == m_aTeam[pKiller->GetCID()]]; // IsTeamKill
+			if(m_aClass[VictimCID] > HunterClass::ID_NONE && m_aClass[VictimCID] <= NUM_CLASS_DATA)
+				m_aHiddenScore[KillerCID] += // add score on kill
+						m_aClassData[m_aClass[VictimCID] - 1].KillScore(m_aTeam[VictimCID] != m_aTeam[KillerCID] ? NORMAL_KILL : TEAM_KILL); // IsTeamKill
 
-			str_format(aBuf, sizeof(aBuf), "你被 '%s' 的%s所杀...", Server()->ClientName(pKiller->GetCID()), m_apWeaponName[Weapon + 1]);
+			str_format(aBuf, sizeof(aBuf), "你被 '%s' 的%s所杀...", Server()->ClientName(KillerCID), m_apWeaponName[Weapon + 1]);
 		}
 		else
 			str_format(aBuf, sizeof(aBuf), "你被 %s 所杀...", m_apWeaponName[Weapon + 1]);
@@ -260,11 +253,11 @@ void CGameControllerHunterN::OnCharacterSpawn(CCharacter *pChr)
 	int CID = pChr->GetPlayer()->GetCID();
 	if(!IsGameRunning())
 	{
-		if(++m_aClass[CID] >= HunterClass::NUM_CLASS_ID)
+		if(++m_aClass[CID] >= NUM_CLASS)
 			SetClass(CID, HunterClass::ID_NONE + 1);
 	}
 	else
-		GameServer()->SendBroadcast(m_apClassSpawnMsg[maximum(m_aClass[CID] - 1, 0)], CID, true);
+		GameServer()->SendBroadcast(m_aClassData[maximum(m_aClass[CID] - 1, 0)].SpawnMsg(), CID, true);
 
 	CGameControllerHunter::OnCharacterSpawn(pChr);
 }
@@ -333,7 +326,7 @@ void CGameControllerHunterN::OnPlayerSnap(class CPlayer *pPlayer, int SnappingCl
 	{
 		bool IsRoundEnd = (IsEndRound() || IsEndMatch());// && GetGameStateTimer() < m_GameoverTime * Server()->TickSpeed();
 		int TeamID = GetPlayerGameTeam(PlayerCID);
-		
+
 		if((m_HunterListBroadcast && IsAlive(pPlayer)) || IsRoundEnd ?
 					IsPlaying(pPlayer) && m_aTeam[PlayerCID] != TEAM_NONE :
 					!IsAlive(pSnappingPlayer) && IsAlive(pPlayer))
@@ -349,7 +342,7 @@ void CGameControllerHunterN::OnPlayerSnap(class CPlayer *pPlayer, int SnappingCl
 				pClientInfo->m_UseCustomColor = 1;
 				pClientInfo->m_ColorBody = TeamID ? 10551132 : 65372; // magic :D
 				pClientInfo->m_ColorFeet = TeamID ? 10551132 : 65372;
-				if(TeamID == TEAM_HUNTER)
+				if(TeamID == TEAM_HUNTER - 1)
 					SnapFlag(m_aSnapIDs[1], pPlayer->GetCharacter()->m_Pos, TeamID);
 			}
 		}

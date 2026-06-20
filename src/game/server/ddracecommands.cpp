@@ -448,7 +448,7 @@ void CGameContext::ConMuteID(IConsole::IResult *pResult, void *pUserData)
 
 	const char *pReason = pResult->NumArguments() > 2 ? pResult->GetString(2) : "";
 
-	pSelf->Mute(&Addr, clamp(pResult->GetInteger(1), 1, 86400),
+	pSelf->Mute(&Addr, clamp(pResult->GetInteger(1), 1, 1<<30),
 		pSelf->Server()->ClientName(Victim), pReason);
 }
 
@@ -463,7 +463,7 @@ void CGameContext::ConMuteIP(IConsole::IResult *pResult, void *pUserData)
 			"Invalid network address to mute");
 	}
 	const char *pReason = pResult->NumArguments() > 2 ? pResult->GetString(2) : "";
-	pSelf->Mute(&Addr, clamp(pResult->GetInteger(1), 1, 86400), NULL, pReason);
+	pSelf->Mute(&Addr, clamp(pResult->GetInteger(1), 1, 1<<30), NULL, pReason);
 }
 
 // unmute by mute list index

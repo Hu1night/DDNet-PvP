@@ -118,14 +118,6 @@ public:
 class CGameControllerHunterN : public CGameControllerHunter
 {
 public:
-	static void AddVote(class IGameController *pSelf, const char *pDescription, const char *pCommand);
-	static void ConMapRotations(IConsole::IResult *pResult, void *pUserData);
-	static void ConMapRotationsAdd(IConsole::IResult *pResult, void *pUserData);
-	static void ConMapRotationsRemove(IConsole::IResult *pResult, void *pUserData);
-	static void ConMapMask(IConsole::IResult *pResult, void *pUserData);
-	static void ConMapMaskAdd(IConsole::IResult *pResult, void *pUserData);
-	static void ConMapMaskRemove(IConsole::IResult *pResult, void *pUserData);
-	static void ConMapMaskAddVote(IConsole::IResult *pResult, void *pUserData);
 	static void ConShowRng(IConsole::IResult *pResult, void *pUserData);
 	static void ConSetRng(IConsole::IResult *pResult, void *pUserData);
 	static void ConSetClass(IConsole::IResult *pResult, void *pUserData);
@@ -180,18 +172,38 @@ protected:
 	char m_aaHunterName[MAX_HUNTERS][MAX_NAME_LENGTH];
 	int m_HunterLeft;
 	int m_aTeam[MAX_CLIENTS];
+	int m_aClassSelectedTick[MAX_CLIENTS];
 
+// Data
 protected:
-	const char *m_apClassSpawnMsg[HunterClass::NUM_CLASS_ID - 1] =
+	enum 
 	{
-		{"你是平民Civic! 找出并消灭猎人以胜利!     \n猎人双倍伤害 有瞬杀锤子和高爆榴弹"},
-		{"     你是猎人Hunter! 合作消灭平民以胜利!\n     猎人双倍伤害 有瞬杀锤子和高爆榴弹\n     能长按锤子追踪最近玩家和无伤榴弹跳"},
+		NUM_CLASS = 2,
+		NUM_CLASS_DATA = 4,
 	};
-	const char *m_apClassName[HunterClass::NUM_CLASS_ID - 1] =
+	enum
 	{
-		{"平民"},
-		{"猎人"},
+		NORMAL_KILL,
+		TEAM_KILL,
+		NUM_KILL_TYPE,
 	};
+	struct ClassData
+	{
+		const char *m_pName;
+		const int m_aKlllScore[NUM_KILL_TYPE];
+		const char *m_pSpawnMsg;
+		const char *Name() { return m_pName; };
+		int KillScore(int KillType) { return m_aKlllScore[clamp(KillType, (int)NORMAL_KILL, (int)NUM_KILL_TYPE - 1)]; };
+		const char *SpawnMsg() { return m_pSpawnMsg; };
+	};
+	ClassData m_aClassData[NUM_CLASS_DATA] = 
+	{
+		{"平民", {1, -1}, "你是平民Civic! 找出并消灭猎人以胜利!     \n猎人双倍伤害 有瞬杀锤子和高爆榴弹"},
+		{"猎人", {4, -2}, "     你是猎人Hunter! 合作消灭平民以胜利!\n     猎人双倍伤害 有瞬杀锤子和高爆榴弹\n     能长按锤子追踪最近玩家和无伤榴弹跳"},
+		{"内鬼", {6, -2}, "     请输入文本1"},
+		{"归命者", {2, -2}, "     请输入文本2"},
+	};
+	
 	const char *m_apWeaponName[7] =
 	{
 		{"地刺"},
@@ -202,43 +214,6 @@ protected:
 		{"激光"},
 		{"忍者刀"},
 	};
-	const int m_aKillScoreData[HunterClass::NUM_CLASS_ID][2] =
-	{
-		{0, 0}, // ID_NONE
-		{1, -1}, // ID_CIVIC
-		{4, -2}, // ID_HUNTER
-	};
-
-// mapstuff
-public:
-	enum { MAX_MAPROTATIONS = 64, }; // magic in CGameTeams
-	int m_aMapMask[MAX_MAPROTATIONS];
-	int m_aMapRotations[MAX_MAPROTATIONS];
-	bool CycleMap()
-	{
-		if(!m_aMapRotations[0])
-			return false;
-
-		bool CurrentMapfound = false;
-
-		for(int i = 0; i < 64; ++i)
-		{
-			if(!m_aMapRotations[i])
-				break;
-			else if(m_aMapRotations[i] == m_MapIndex) 
-				CurrentMapfound = true;
-			else if(CurrentMapfound)
-			{
-				m_MapIndex = m_aMapRotations[i];
-				GameServer()->Teams()->ReloadGameInstance(GameWorld()->Team());
-				return true;
-			}
-		}
-
-		m_MapIndex = m_aMapRotations[0];
-		GameServer()->Teams()->ReloadGameInstance(GameWorld()->Team());
-		return true;
-	}
 
 // Toolbox
 public:

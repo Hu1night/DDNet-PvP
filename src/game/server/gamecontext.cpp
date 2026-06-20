@@ -1914,6 +1914,18 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 					return;
 				}
 
+				int Authed = Server()->GetAuthedState(ClientID);
+				int SpectateAuthed = Server()->GetAuthedState(SpectateID);
+				if(SpectateAuthed > Authed)
+				{
+					SendChatTarget(ClientID, "You can't spectate authorized players");
+					m_apPlayers[ClientID]->m_LastKickVote = time_get();
+					char aBufKick[128];
+					str_format(aBufKick, sizeof(aBufKick), "'%s' called for vote to spectate you", Server()->ClientName(ClientID));
+					SendChatTarget(SpectateID, aBufKick);
+					return;
+				}
+
 				str_format(aSixupDesc, sizeof(aSixupDesc), "%2d: %s", SpectateID, Server()->ClientName(SpectateID));
 				str_format(aChatmsg, sizeof(aChatmsg), "'%s' called for vote to move '%s' to spectators (%s)", Server()->ClientName(ClientID), Server()->ClientName(SpectateID), aReason);
 				str_format(aDesc, sizeof(aDesc), "Move '%s' to spectators", Server()->ClientName(SpectateID));

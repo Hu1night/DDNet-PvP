@@ -924,7 +924,7 @@ void CCharacter::SnapCharacter(int SnappingClient, int ClientID)
 		pCharacter->m_AmmoCount = AmmoCount;
 		pCharacter->m_Health = Health;
 		pCharacter->m_Armor = Armor;
-		pCharacter->m_PlayerFlags = GetPlayer()->m_PlayerFlags;
+		pCharacter->m_PlayerFlags = GetPlayer()->m_PlayerFlags & ~(PLAYERFLAG_CHATTING);
 
 		// HACK: no shaking during pause / round end
 		if(GameWorld()->m_Paused)

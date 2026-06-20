@@ -593,7 +593,7 @@ bool CHttp::Init(std::chrono::milliseconds ShutdownDelay, CConfig *pConfig)
 #if !defined(CONF_FAMILY_WINDOWS)
 	// As a multithreaded application we have to tell curl to not install signal
 	// handlers and instead ignore SIGPIPE from OpenSSL ourselves.
-	signal(SIGPIPE, SIG_IGN);
+	//signal(SIGPIPE, SIG_IGN);
 #endif
 	m_pThread = thread_init(CHttp::ThreadMain, this, "CHttp Worker");
 
