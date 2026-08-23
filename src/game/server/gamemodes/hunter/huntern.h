@@ -263,6 +263,7 @@ protected:
 		m_DoWincheckTick = -1;
 	}
 
+	bool IsGameInLoop() { return IsGameRunning() || IsEndRound() || IsEndMatch(); }
 	bool IsInRound(int CID)
 	{
 		return IsPlaying(CID) && m_aTeam[CID] > TEAM_NONE && m_aTeam[CID] < NUM_HUNTER_TEAMS;

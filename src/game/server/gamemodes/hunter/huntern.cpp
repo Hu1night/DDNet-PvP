@@ -279,7 +279,7 @@ void CGameControllerHunterN::OnPlayerJoin(class CPlayer *pPlayer)
 	str_format(aBuf, sizeof(aBuf), "开源地址: %s", HUNTERN_REPO);
 	SendChatTarget(CID, aBuf);
 
-	if(!IsGameRunning())
+	if(IsGameInLoop())
 		return;
 
 	KillPlayer(pPlayer);
